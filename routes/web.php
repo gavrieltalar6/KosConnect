@@ -30,7 +30,9 @@ Route::middleware(['role:pengurus'])->prefix('pengurus')->name('pengurus.')->gro
     Route::post('/cleaning/{schedule}/done', [\App\Http\Controllers\Pengurus\CleaningReviewController::class, 'markAsDone'])->name('cleaning.markAsDone');
 
     Route::get('/damage-reports', [\App\Http\Controllers\Pengurus\DamageReportController::class, 'index'])->name('damage_reports.index');
+    Route::get('/damage-reports/history', [\App\Http\Controllers\Pengurus\DamageReportController::class, 'history'])->name('damage_reports.history');
     Route::put('/damage-reports/{report}', [\App\Http\Controllers\Pengurus\DamageReportController::class, 'update'])->name('damage_reports.update');
+    
 });
 
 Route::middleware(['role:penghuni'])->prefix('penghuni')->name('penghuni.')->group(function () {
