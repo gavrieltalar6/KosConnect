@@ -11,8 +11,14 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Alias middleware role yang sudah ada
         $middleware->alias([
             'role' => \App\Http\Middleware\EnsureUserHasRole::class,
+        ]);
+
+        // ➕ Tambahkan pengecualian CSRF untuk webhook Midtrans
+        $middleware->validateCsrfTokens(except: [
+            'midtrans/notification',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

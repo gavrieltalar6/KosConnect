@@ -1,9 +1,16 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Pemilik\DashboardController as PemilikDashboardController;
 use App\Http\Controllers\Pengurus\DashboardController as PengurusDashboardController;
 use App\Http\Controllers\Penghuni\DashboardController as PenghuniDashboardController;
+use App\Http\Controllers\Pengurus\PaymentController; // Pastikan controller ini di-use
+
+// Redirect halaman utama (/) ke halaman login
+Route::get('/', function () {
+    return redirect()->route('login');
+});
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
@@ -11,9 +18,15 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::middleware(['role:pemilik,pengurus'])->prefix('pemilik')->name('pemilik.')->group(function () {
     Route::get('invoices', [\App\Http\Controllers\Pemilik\InvoiceController::class, 'index'])->name('invoices.index');
-    Route::get('invoices/{invoice}/payment', [\App\Http\Controllers\Pengurus\PaymentController::class, 'create'])->name('invoices.payment.create');
-    Route::post('invoices/{invoice}/payment', [\App\Http\Controllers\Pengurus\PaymentController::class, 'store'])->name('invoices.payment.store');
+    Route::get('invoices/{invoice}/payment', [PaymentController::class, 'create'])->name('invoices.payment.create');
+    Route::post('invoices/{invoice}/payment', [PaymentController::class, 'store'])->name('invoices.payment.store');
+    
+    // Untuk mengambil Snap Token Midtrans via AJAX
+    Route::get('invoices/{invoice}/snap-token', [PaymentController::class, 'getSnapToken'])->name('invoices.snap-token');
 });
+
+// Untuk Webhook Notification dari Midtrans (di luar middleware role)
+Route::post('/midtrans/notification', [PaymentController::class, 'notification'])->name('midtrans.notification');
 
 Route::middleware(['role:pemilik'])->prefix('pemilik')->name('pemilik.')->group(function () {
     Route::get('/dashboard', PemilikDashboardController::class)->name('dashboard');
