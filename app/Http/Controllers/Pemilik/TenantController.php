@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Pemilik;
 
-use App\Http\Controllers\Controller;
-use App\Models\Tenant;
-use App\Models\User;
-use App\Models\Room;
 use App\Enums\Role;
 use App\Enums\TenantStatus;
+use App\Http\Controllers\Controller;
+use App\Models\Room;
+use App\Models\Tenant;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -41,16 +41,20 @@ class TenantController extends Controller
             'due_day' => ['required', 'integer', 'between:1,28'],
         ]);
 
+        if ($this->roomIsTaken($validated['room_id'] ?? null)) {
+            return back()->withInput()->with('error', 'Kamar tersebut sudah dihuni penghuni lain.');
+        }
+
         DB::transaction(function () use ($validated) {
             $user = User::create([
                 'name' => $validated['full_name'],
                 'email' => $validated['email'],
                 'password' => Hash::make($validated['password']),
-                'role' => Role::PENGHUNI,
+                'role' => Role::PENGGUNI,
                 'is_active' => true,
             ]);
 
-            Tenant::create([
+            $tenant = Tenant::create([
                 'user_id' => $user->id,
                 'room_id' => $validated['room_id'] ?? null,
                 'full_name' => $validated['full_name'],
@@ -62,9 +66,7 @@ class TenantController extends Controller
                 'status' => TenantStatus::ACTIVE,
             ]);
 
-            if ($validated['room_id']) {
-                Room::find($validated['room_id'])->update(['status' => 'occupied']);
-            }
+            $tenant->room?->syncOccupancyStatus();
         });
 
         return redirect()->route('pemilik.tenants.index')->with('success', 'Penghuni berhasil ditambahkan.');
@@ -95,16 +97,19 @@ class TenantController extends Controller
             'status' => ['required', Rule::enum(TenantStatus::class)],
         ]);
 
+        if ($this->roomIsTaken($validated['room_id'] ?? null, $tenant->id)) {
+            return back()->withInput()->with('error', 'Kamar tersebut sudah dihuni penghuni lain.');
+        }
+
         DB::transaction(function () use ($validated, $tenant) {
             $oldRoomId = $tenant->room_id;
 
             $tenant->update($validated);
             $tenant->user->update(['name' => $validated['full_name']]);
 
-            if ($oldRoomId !== $validated['room_id']) {
-                if ($oldRoomId) Room::find($oldRoomId)->update(['status' => 'available']);
-                if ($validated['room_id']) Room::find($validated['room_id'])->update(['status' => 'occupied']);
-            }
+            // Sinkronkan kamar lama (boleh jadi kosong) dan kamar baru
+            Room::find($oldRoomId)?->syncOccupancyStatus();
+            Room::find($validated['room_id'] ?? null)?->syncOccupancyStatus();
         });
 
         return redirect()->route('pemilik.tenants.index')->with('success', 'Data penghuni berhasil diperbarui.');
@@ -113,13 +118,39 @@ class TenantController extends Controller
     public function destroy(Tenant $tenant)
     {
         DB::transaction(function () use ($tenant) {
-            if ($tenant->room_id) {
-                Room::find($tenant->room_id)->update(['status' => 'available']);
-            }
-            $tenant->user->delete();
+            $roomId = $tenant->room_id;
+            $user = $tenant->user;
+
             $tenant->delete();
+            $user?->delete();
+
+            Room::find($roomId)?->syncOccupancyStatus();
         });
 
         return redirect()->route('pemilik.tenants.index')->with('success', 'Penghuni berhasil dihapus.');
+    }
+
+    /**
+     * Kamar dianggap terisi jika sudah ada penghuni aktif lain di sana.
+     */
+    private function roomIsTaken(?int $roomId, ?int $exceptTenantId = null): bool
+    {
+        if (! $roomId) {
+            return false;
+        }
+
+        $room = Room::find($roomId);
+
+        if (! $room) {
+            return false;
+        }
+
+        $query = $room->activeTenants();
+
+        if ($exceptTenantId) {
+            $query = $query->where('tenants.id', '!=', $exceptTenantId);
+        }
+
+        return $query->exists();
     }
 }

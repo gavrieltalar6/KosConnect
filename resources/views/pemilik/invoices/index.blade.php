@@ -14,6 +14,7 @@
             <thead>
                 <tr>
                     <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Penghuni</th>
+                    <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kamar</th>
                     <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Periode</th>
                     <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jumlah</th>
                     <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jatuh Tempo</th>
@@ -25,6 +26,7 @@
                 @forelse($invoices as $invoice)
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap">{{ $invoice->tenant->full_name }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ $invoice->room?->room_number ?? '-' }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">{{ $invoice->period }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">Rp {{ number_format($invoice->amount, 0, ',', '.') }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">{{ $invoice->due_date->format('d-m-Y') }}</td>
@@ -41,7 +43,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="px-6 py-4 text-center text-gray-500">Belum ada data tagihan.</td>
+                        <td colspan="7" class="px-6 py-4 text-center text-gray-500">Belum ada data tagihan.</td>
                     </tr>
                 @endforelse
             </tbody>
