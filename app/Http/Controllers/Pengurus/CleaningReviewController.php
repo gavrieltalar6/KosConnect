@@ -11,39 +11,51 @@ use Illuminate\Support\Facades\DB;
 
 class CleaningReviewController extends Controller
 {
-    public function index()
-    {
-        $schedules = CleaningSchedule::with('tenant')
-            ->whereIn('status', [
-                CleaningScheduleStatus::PENDING,
-                CleaningScheduleStatus::APPROVED,
-                CleaningScheduleStatus::RESCHEDULED,
-            ])
-            ->orderByDesc('created_at')
-            ->paginate(10);
+    
 
-        $stats = [
-            'pending' => CleaningSchedule::where(
-                'status',
-                CleaningScheduleStatus::PENDING
-            )->count(),
 
-            'approved' => CleaningSchedule::where(
-                'status',
-                CleaningScheduleStatus::APPROVED
-            )->count(),
+public function index()
+{
+    $schedules = CleaningSchedule::with(['tenant', 'room'])
+        ->whereIn('status', [
+            CleaningScheduleStatus::PENDING->value,
+            CleaningScheduleStatus::APPROVED->value,
+            CleaningScheduleStatus::RESCHEDULED->value,
+        ])
+        ->orderByDesc('created_at')
+        ->paginate(10);
 
-            'rescheduled' => CleaningSchedule::where(
-                'status',
-                CleaningScheduleStatus::RESCHEDULED
-            )->count(),
-        ];
+    $totalPending = CleaningSchedule::where(
+        'status',
+        CleaningScheduleStatus::PENDING->value
+    )->count();
 
-        return view(
-            'pengurus.cleaning.index',
-            compact('schedules', 'stats')
-        );
-    }
+    $totalApproved = CleaningSchedule::where(
+        'status',
+        CleaningScheduleStatus::APPROVED->value
+    )->count();
+
+    $totalRescheduled = CleaningSchedule::where(
+        'status',
+        CleaningScheduleStatus::RESCHEDULED->value
+    )->count();
+
+    $stats = [
+        'pending' => $totalPending,
+        'approved' => $totalApproved,
+        'rescheduled' => $totalRescheduled,
+    ];
+
+    return view('pengurus.cleaning.index', compact(
+        'schedules',
+        'totalPending',
+        'totalApproved',
+        'totalRescheduled',
+        'stats'
+    ));
+}
+
+
 
     public function report()
     {
