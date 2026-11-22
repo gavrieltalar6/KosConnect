@@ -55,20 +55,46 @@ public function index()
     ));
 }
 
+public function report()
+{
+    $schedules = CleaningSchedule::with(['tenant', 'room'])
+        ->whereIn('status', [
+            CleaningScheduleStatus::DONE->value,
+            CleaningScheduleStatus::REJECTED->value,
+        ])
+        ->latest()
+        ->paginate(10);
 
+    $totalReports = CleaningSchedule::count();
 
-    public function report()
-    {
-        $schedules = CleaningSchedule::with('tenant')
-            ->whereIn('status', [
-                CleaningScheduleStatus::DONE,
-                CleaningScheduleStatus::REJECTED
-            ])
-            ->latest()
-            ->paginate(10);
+    $totalDone = CleaningSchedule::where(
+        'status',
+        CleaningScheduleStatus::DONE->value
+    )->count();
 
-        return view('pengurus.cleaning.report', compact('schedules'));
-    }
+    $totalPending = CleaningSchedule::where(
+        'status',
+        CleaningScheduleStatus::PENDING->value
+    )->count();
+
+    $totalRescheduled = CleaningSchedule::where(
+        'status',
+        CleaningScheduleStatus::RESCHEDULED->value
+    )->count();
+
+    $stats = [
+        'total' => $totalReports,
+        'done' => $totalDone,
+        'pending' => $totalPending,
+        'rescheduled' => $totalRescheduled,
+    ];
+
+    return view('pengurus.cleaning.report', compact(
+        'schedules',
+        'stats'
+    ));
+}
+
 
     public function update(Request $request, CleaningSchedule $schedule)
     {
