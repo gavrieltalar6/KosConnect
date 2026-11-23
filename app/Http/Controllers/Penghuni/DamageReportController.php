@@ -63,11 +63,17 @@ class DamageReportController extends Controller
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'description' => ['required', 'string', 'max:2000'],
+            'location_type' => ['required', 'in:own_room,shared_area'],
+            'shared_area_detail' => ['required_if:location_type,shared_area', 'nullable', 'string', 'max:255'],
         ], [
             'title.required' => 'Judul laporan kerusakan wajib diisi.',
             'title.max' => 'Judul laporan kerusakan maksimal 255 karakter.',
             'description.required' => 'Deskripsi kerusakan wajib diisi.',
             'description.max' => 'Deskripsi kerusakan maksimal 2000 karakter.',
+            'location_type.required' => 'Pilih jenis lokasi kerusakan.',
+            'location_type.in' => 'Pilihan lokasi tidak valid.',
+            'shared_area_detail.required_if' => 'Nama/keterangan ruangan bersama wajib diisi.',
+            'shared_area_detail.max' => 'Keterangan lokasi ruangan bersama maksimal 255 karakter.',
         ]);
 
         DamageReport::create([
@@ -75,6 +81,8 @@ class DamageReportController extends Controller
             'room_id' => $tenant->room_id,
             'title' => $validated['title'],
             'description' => $validated['description'],
+            'location_type' => $validated['location_type'],
+            'shared_area_detail' => $validated['location_type'] === 'shared_area' ? $validated['shared_area_detail'] : null,
             'status' => DamageReportStatus::OPEN,
         ]);
 
