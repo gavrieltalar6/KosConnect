@@ -8,4 +8,14 @@ enum DamageReportStatus: string
     case IN_PROGRESS = 'in_progress';
     case RESOLVED = 'resolved';
     case CANCELLED = 'cancelled';
+
+    public function getLabel(): string
+    {
+        return match($this) {
+            self::OPEN => 'Menunggu Diproses',
+            self::IN_PROGRESS => 'Sedang Diproses',
+            self::RESOLVED => 'Selesai',
+            self::CANCELLED => 'Dibatalkan',
+        };
+    }
 }

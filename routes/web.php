@@ -5,6 +5,7 @@ use App\Http\Controllers\Pemilik\DashboardController as PemilikDashboardControll
 use App\Http\Controllers\Pengurus\DashboardController as PengurusDashboardController;
 use App\Http\Controllers\Penghuni\DashboardController as PenghuniDashboardController;
 
+Route::redirect('/', '/login');
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
@@ -32,7 +33,9 @@ Route::middleware(['role:pengurus'])->prefix('pengurus')->name('pengurus.')->gro
     Route::post('/cleaning/{schedule}/done', [\App\Http\Controllers\Pengurus\CleaningReviewController::class, 'markAsDone'])->name('cleaning.markAsDone');
 
     Route::get('/damage-reports', [\App\Http\Controllers\Pengurus\DamageReportController::class, 'index'])->name('damage_reports.index');
+    Route::get('/damage-reports/history', [\App\Http\Controllers\Pengurus\DamageReportController::class, 'history'])->name('damage_reports.history');
     Route::put('/damage-reports/{report}', [\App\Http\Controllers\Pengurus\DamageReportController::class, 'update'])->name('damage_reports.update');
+    
 });
 
 Route::middleware(['role:penghuni'])->prefix('penghuni')->name('penghuni.')->group(function () {
