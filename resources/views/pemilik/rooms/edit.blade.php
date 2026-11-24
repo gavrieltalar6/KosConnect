@@ -3,6 +3,15 @@
 @section('header', 'Edit Kamar')
 @section('content')
     <div class="bg-white p-6 rounded shadow">
+        @if ($errors->any())
+            <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                <ul class="list-disc pl-5">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
         <form action="{{ route('pemilik.rooms.update', $room) }}" method="POST">
             @csrf
             @method('PUT')
@@ -12,7 +21,7 @@
             </div>
             <div class="mb-4">
                 <label for="floor" class="block text-sm font-medium">Lantai</label>
-                <input type="number" name="floor" id="floor" class="w-full border rounded px-3 py-2 mt-1" value="{{ old('floor', $room->floor) }}" required>
+                <input type="number" name="floor" id="floor" class="w-full border rounded px-3 py-2 mt-1" value="{{ old('floor', $room->floor) }}">
             </div>
             <div class="mb-4">
                 <label for="monthly_price" class="block text-sm font-medium">Harga Bulanan (Rp)</label>
@@ -30,7 +39,6 @@
                 <label for="description" class="block text-sm font-medium">Deskripsi</label>
                 <textarea name="description" id="description" class="w-full border rounded px-3 py-2 mt-1">{{ old('description', $room->description) }}</textarea>
             </div>
-
             <div class="flex items-center justify-between mt-4">
                 <button type="submit" class="bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-800">Perbarui</button>
                 <a href="{{ route('pemilik.rooms.index') }}" class="text-gray-600 hover:underline">Batal</a>

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\InvoiceStatus;
+use App\Enums\Role;
 use Illuminate\Database\Eloquent\Model;
 
 class Invoice extends Model
@@ -12,6 +13,7 @@ class Invoice extends Model
 
     protected $fillable = [
         'tenant_id',
+        'room_id',
         'period',
         'amount',
         'due_date',
@@ -53,5 +55,10 @@ class Invoice extends Model
         }
 
         return true;
+    }
+
+    public function room()
+    {
+        return $this->belongsTo(Room::class);
     }
 }

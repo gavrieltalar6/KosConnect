@@ -13,6 +13,8 @@ class DamageReport extends Model
         'room_id',
         'title',
         'description',
+        'location_type',
+        'shared_area_detail',
         'status',
         'handled_by',
         'resolved_at',

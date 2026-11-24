@@ -12,6 +12,7 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
+Route::redirect('/', '/login');
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
@@ -33,6 +34,7 @@ Route::middleware(['role:pemilik'])->prefix('pemilik')->name('pemilik.')->group(
     Route::resource('rooms', \App\Http\Controllers\Pemilik\RoomController::class)->except(['show']);
     Route::resource('tenants', \App\Http\Controllers\Pemilik\TenantController::class);
     Route::resource('invoices', \App\Http\Controllers\Pemilik\InvoiceController::class)->except(['index']);
+    Route::get('damage-reports', [\App\Http\Controllers\Pemilik\DamageReportController::class, 'index'])->name('damage_reports.index');
 });
 
 Route::middleware(['role:pengurus'])->prefix('pengurus')->name('pengurus.')->group(function () {
@@ -43,7 +45,9 @@ Route::middleware(['role:pengurus'])->prefix('pengurus')->name('pengurus.')->gro
     Route::post('/cleaning/{schedule}/done', [\App\Http\Controllers\Pengurus\CleaningReviewController::class, 'markAsDone'])->name('cleaning.markAsDone');
 
     Route::get('/damage-reports', [\App\Http\Controllers\Pengurus\DamageReportController::class, 'index'])->name('damage_reports.index');
+    Route::get('/damage-reports/history', [\App\Http\Controllers\Pengurus\DamageReportController::class, 'history'])->name('damage_reports.history');
     Route::put('/damage-reports/{report}', [\App\Http\Controllers\Pengurus\DamageReportController::class, 'update'])->name('damage_reports.update');
+    
 });
 
 Route::middleware(['role:penghuni'])->prefix('penghuni')->name('penghuni.')->group(function () {
