@@ -53,3 +53,4 @@ class DamageReportController extends Controller
             ->with('success', 'Laporan kerusakan berhasil diperbarui.');
     }
 }
+ 
