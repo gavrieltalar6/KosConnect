@@ -72,5 +72,9 @@ class InvoiceSeeder extends Seeder
                 'updated_at' => now(),
             ],
         ]);
+
+        DB::table('invoices')->update([
+            'room_id' => DB::raw('(SELECT room_id FROM tenants WHERE tenants.id = invoices.tenant_id)'),
+        ]);
     }
 }

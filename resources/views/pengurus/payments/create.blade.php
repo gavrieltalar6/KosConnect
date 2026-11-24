@@ -14,7 +14,8 @@
         @csrf
         <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700">Jumlah Bayar (Rp)</label>
-            <input type="number" name="amount" value="{{ $invoice->amount }}" class="mt-1 block w-full border border-gray-300 rounded-md p-2" required>
+            <input type="text" value="{{ number_format($invoice->amount, 2, ',', '.') }}" class="mt-1 block w-full border border-gray-300 rounded-md p-2 bg-gray-100 text-gray-600 cursor-not-allowed" readonly>
+            <p class="mt-1 text-xs text-gray-500">Otomatis sesuai harga sewa kamar{{ $invoice->room ? ' ' . $invoice->room->room_number : '' }}.</p>
         </div>
         <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700">Tanggal Bayar</label>

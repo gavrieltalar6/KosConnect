@@ -10,51 +10,104 @@ use Illuminate\Support\Facades\Auth;
 
 class DamageReportController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $tenant = Auth::user()->tenant;
-        $reports = DamageReport::where('tenant_id', $tenant->id)->latest()->paginate(10);
-        return view('penghuni.damage_reports.index', compact('reports'));
+
+        if (!$tenant) {
+            $reports = DamageReport::whereRaw('1 = 0')->paginate(10);
+            return view('penghuni.damage_reports.index', compact('reports', 'tenant'))
+                ->with('error', 'Profil penghuni Anda belum terdaftar.');
+        }
+
+        $reports = DamageReport::with(['room', 'handler'])
+            ->where('tenant_id', $tenant->id)
+            ->when($request->filled('status'), function ($query) use ($request) {
+                $query->where('status', $request->status);
+            })
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('penghuni.damage_reports.index', compact('reports', 'tenant'));
     }
 
     public function create()
     {
-        return view('penghuni.damage_reports.create');
+        $tenant = Auth::user()->tenant;
+
+        if (!$tenant) {
+            return redirect()->route('penghuni.damage_reports.index')
+                ->with('error', 'Profil penghuni Anda belum terdaftar.');
+        }
+
+        if (!$tenant->room_id || !$tenant->room) {
+            return redirect()->route('penghuni.damage_reports.index')
+                ->with('error', 'Anda belum terdaftar pada kamar aktif. Harap hubungi pengurus atau pemilik kos sebelum membuat laporan kerusakan.');
+        }
+
+        $room = $tenant->room;
+
+        return view('penghuni.damage_reports.create', compact('tenant', 'room'));
     }
 
     public function store(Request $request)
     {
+        $tenant = Auth::user()->tenant;
+
+        if (!$tenant || !$tenant->room_id) {
+            return redirect()->route('penghuni.damage_reports.index')
+                ->with('error', 'Anda belum memiliki kamar terdaftar untuk mengajukan laporan kerusakan.');
+        }
+
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
-            'description' => ['required', 'string'],
+            'description' => ['required', 'string', 'max:2000'],
+            'location_type' => ['required', 'in:own_room,shared_area'],
+            'shared_area_detail' => ['required_if:location_type,shared_area', 'nullable', 'string', 'max:255'],
+        ], [
+            'title.required' => 'Judul laporan kerusakan wajib diisi.',
+            'title.max' => 'Judul laporan kerusakan maksimal 255 karakter.',
+            'description.required' => 'Deskripsi kerusakan wajib diisi.',
+            'description.max' => 'Deskripsi kerusakan maksimal 2000 karakter.',
+            'location_type.required' => 'Pilih jenis lokasi kerusakan.',
+            'location_type.in' => 'Pilihan lokasi tidak valid.',
+            'shared_area_detail.required_if' => 'Nama/keterangan ruangan bersama wajib diisi.',
+            'shared_area_detail.max' => 'Keterangan lokasi ruangan bersama maksimal 255 karakter.',
         ]);
-
-        $tenant = Auth::user()->tenant;
 
         DamageReport::create([
             'tenant_id' => $tenant->id,
             'room_id' => $tenant->room_id,
             'title' => $validated['title'],
             'description' => $validated['description'],
+            'location_type' => $validated['location_type'],
+            'shared_area_detail' => $validated['location_type'] === 'shared_area' ? $validated['shared_area_detail'] : null,
             'status' => DamageReportStatus::OPEN,
         ]);
 
-        return redirect()->route('penghuni.damage_reports.index')->with('success', 'Laporan kerusakan berhasil dikirim.');
+        return redirect()->route('penghuni.damage_reports.index')
+            ->with('success', 'Laporan kerusakan berhasil dikirim. Pengurus akan segera memverifikasi dan menindaklanjuti.');
     }
 
     public function cancel(DamageReport $report)
     {
         $tenant = Auth::user()->tenant;
 
-        if ($report->tenant_id !== $tenant->id) {
-            abort(403);
+        if (!$tenant || $report->tenant_id !== $tenant->id) {
+            abort(403, 'Anda tidak memiliki hak untuk membatalkan laporan ini.');
         }
 
-        if ($report->status === DamageReportStatus::OPEN) {
-            $report->update(['status' => DamageReportStatus::CANCELLED]);
-            return redirect()->route('penghuni.damage_reports.index')->with('success', 'Laporan kerusakan berhasil dibatalkan.');
+        if ($report->status === DamageReportStatus::OPEN || $report->status?->value === 'open') {
+            $report->update([
+                'status' => DamageReportStatus::CANCELLED,
+            ]);
+
+            return redirect()->route('penghuni.damage_reports.index')
+                ->with('success', 'Laporan kerusakan berhasil dibatalkan.');
         }
 
-        return redirect()->route('penghuni.damage_reports.index')->with('error', 'Laporan tidak dapat dibatalkan.');
+        return redirect()->route('penghuni.damage_reports.index')
+            ->with('error', 'Laporan tidak dapat dibatalkan karena sudah dalam penanganan atau telah selesai.');
     }
 }

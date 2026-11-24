@@ -4,6 +4,7 @@ namespace Database\Seeders;
 use App\Enums\InvoiceStatus;
 use App\Enums\RoomStatus;
 use App\Enums\Role;
+use App\Models\Room;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -16,5 +17,7 @@ class DatabaseSeeder extends Seeder
             TenantSeeder::class,
             InvoiceSeeder::class,
         ]);
+
+        Room::all()->each->syncOccupancyStatus();
     }
 }

@@ -38,7 +38,8 @@ class RoomController extends Controller
             'status.required' => 'Status kamar wajib dipilih.',
         ]);
 
-        Room::create($validated);
+        $room = Room::create($validated);
+        $room->syncOccupancyStatus();
 
         return redirect()->route('pemilik.rooms.index')->with('success', 'Kamar berhasil ditambahkan.');
     }
@@ -66,6 +67,12 @@ class RoomController extends Controller
         ]);
 
         $room->update($validated);
+        $room->syncOccupancyStatus();
+
+        // Harga berubah -> tagihan yang belum lunas ikut mengikuti harga baru
+        if ($room->wasChanged('monthly_price')) {
+            $room->syncUnpaidInvoiceAmounts();
+        }
 
         return redirect()->route('pemilik.rooms.index')->with('success', 'Data kamar berhasil diperbarui.');
     }
