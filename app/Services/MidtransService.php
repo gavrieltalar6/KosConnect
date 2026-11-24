@@ -82,7 +82,7 @@ class MidtransService
             }
         }
 
-        $expected = hash('sha512', $payload['order_id'] . $payload['status_code'] . $payload['gross_amount'] . config('services.midtrans.server_key'));
+       $expected = hash('sha512', $payload['order_id'] . $payload['status_code'] . $payload['gross_amount'] . config('services.midtrans.signature_key'));
 
         return hash_equals($expected, $payload['signature_key']);
     }
