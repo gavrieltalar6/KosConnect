@@ -13,13 +13,15 @@ Route::middleware(['role:pemilik,pengurus'])->prefix('pemilik')->name('pemilik.'
     Route::get('invoices', [\App\Http\Controllers\Pemilik\InvoiceController::class, 'index'])->name('invoices.index');
     Route::get('invoices/{invoice}/payment', [\App\Http\Controllers\Pengurus\PaymentController::class, 'create'])->name('invoices.payment.create');
     Route::post('invoices/{invoice}/payment', [\App\Http\Controllers\Pengurus\PaymentController::class, 'store'])->name('invoices.payment.store');
+    Route::get('invoices/create', [\App\Http\Controllers\Pemilik\InvoiceController::class, 'create'])->name('invoices.create');
+    Route::post('invoices', [\App\Http\Controllers\Pemilik\InvoiceController::class, 'store'])->name('invoices.store');
 });
 
 Route::middleware(['role:pemilik'])->prefix('pemilik')->name('pemilik.')->group(function () {
     Route::get('/dashboard', PemilikDashboardController::class)->name('dashboard');
     Route::resource('rooms', \App\Http\Controllers\Pemilik\RoomController::class)->except(['show']);
     Route::resource('tenants', \App\Http\Controllers\Pemilik\TenantController::class);
-    Route::resource('invoices', \App\Http\Controllers\Pemilik\InvoiceController::class)->except(['index']);
+        Route::resource('invoices', \App\Http\Controllers\Pemilik\InvoiceController::class)->except(['index', 'create', 'store']);
 });
 
 Route::middleware(['role:pengurus'])->prefix('pengurus')->name('pengurus.')->group(function () {
