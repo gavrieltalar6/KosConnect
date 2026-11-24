@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ config('app.name', 'KosConnect') }} - @yield('title')</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -44,7 +45,7 @@
                 @endif
 
                 @if($role === 'penghuni')
-                    <a href="#" class="block p-3 rounded hover:bg-indigo-600">Tagihan Saya</a>
+                    <a href="{{ route('penghuni.invoices.index') }}" class="block p-3 rounded hover:bg-indigo-600 {{ request()->routeIs('penghuni.invoices.*') ? 'bg-indigo-600' : '' }}">Tagihan Saya</a>
                     <a href="{{ route('penghuni.cleaning.index') }}" class="block p-3 rounded hover:bg-indigo-600 {{ request()->routeIs('penghuni.cleaning.index') ? 'bg-indigo-600' : '' }}">Jadwal Kebersihan</a>
                     <a href="{{ route('penghuni.cleaning.report') }}" class="block p-3 rounded hover:bg-indigo-600 {{ request()->routeIs('penghuni.cleaning.report') ? 'bg-indigo-600' : '' }}">Laporan Kebersihan</a>
                     <a href="{{ route('penghuni.damage_reports.index') }}" class="block p-3 rounded hover:bg-indigo-600 {{ request()->routeIs('penghuni.damage_reports.*') ? 'bg-indigo-600' : '' }}">Laporan Kerusakan</a>
