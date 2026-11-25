@@ -13,9 +13,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (DB::getDriverName() === 'mysql') {
-            DB::statement("ALTER TABLE damage_reports MODIFY COLUMN status ENUM('open', 'in_progress', 'resolved', 'cancelled') DEFAULT 'open'");
-        }
+        DB::statement("ALTER TABLE damage_reports MODIFY COLUMN status ENUM('open', 'in_progress', 'resolved', 'cancelled') DEFAULT 'open'");
     }
 
     /**
@@ -23,8 +21,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        if (DB::getDriverName() === 'mysql') {
-            DB::statement("ALTER TABLE damage_reports MODIFY COLUMN status ENUM('open', 'in_progress', 'resolved') DEFAULT 'open'");
-        }
+        DB::statement("ALTER TABLE damage_reports MODIFY COLUMN status ENUM('open', 'in_progress', 'resolved') DEFAULT 'open'");
     }
 };
