@@ -5,7 +5,9 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Pemilik\DashboardController as PemilikDashboardController;
 use App\Http\Controllers\Pengurus\DashboardController as PengurusDashboardController;
 use App\Http\Controllers\Penghuni\DashboardController as PenghuniDashboardController;
-use App\Http\Controllers\Pengurus\PaymentController; // Pastikan controller ini di-use
+use App\Http\Controllers\Pengurus\PaymentController;
+use App\Http\Controllers\MidtransNotificationController;
+use App\Http\Controllers\Penghuni\InvoiceController as PenghuniInvoiceController;
 
 // Redirect halaman utama (/) ke halaman login
 Route::get('/', function () {
@@ -19,22 +21,21 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::middleware(['role:pemilik,pengurus'])->prefix('pemilik')->name('pemilik.')->group(function () {
     Route::get('invoices', [\App\Http\Controllers\Pemilik\InvoiceController::class, 'index'])->name('invoices.index');
+    Route::get('invoices/create', [\App\Http\Controllers\Pemilik\InvoiceController::class, 'create'])->name('invoices.create');
+    Route::post('invoices', [\App\Http\Controllers\Pemilik\InvoiceController::class, 'store'])->name('invoices.store');
     Route::get('invoices/{invoice}/payment', [PaymentController::class, 'create'])->name('invoices.payment.create');
     Route::post('invoices/{invoice}/payment', [PaymentController::class, 'store'])->name('invoices.payment.store');
-    
-    // Untuk mengambil Snap Token Midtrans via AJAX
-    Route::get('invoices/{invoice}/snap-token', [PaymentController::class, 'getSnapToken'])->name('invoices.snap-token');
 });
 
-// Untuk Webhook Notification dari Midtrans (di luar middleware role)
-Route::post('/midtrans/notification', [PaymentController::class, 'notification'])->name('midtrans.notification');
+// Webhook Notification dari Midtrans (di luar middleware role; CSRF dikecualikan di bootstrap/app.php)
+Route::post('/midtrans/notification', [MidtransNotificationController::class, 'handle'])->name('midtrans.notification');
 
 Route::middleware(['role:pemilik'])->prefix('pemilik')->name('pemilik.')->group(function () {
     Route::get('/dashboard', PemilikDashboardController::class)->name('dashboard');
+    Route::get('/damage-reports', [\App\Http\Controllers\Pemilik\DamageReportController::class, 'index'])->name('damage_reports.index');
     Route::resource('rooms', \App\Http\Controllers\Pemilik\RoomController::class)->except(['show']);
     Route::resource('tenants', \App\Http\Controllers\Pemilik\TenantController::class);
-    Route::resource('invoices', \App\Http\Controllers\Pemilik\InvoiceController::class)->except(['index']);
-    Route::get('damage-reports', [\App\Http\Controllers\Pemilik\DamageReportController::class, 'index'])->name('damage_reports.index');
+        Route::resource('invoices', \App\Http\Controllers\Pemilik\InvoiceController::class)->except(['index', 'create', 'store']);
 });
 
 Route::middleware(['role:pengurus'])->prefix('pengurus')->name('pengurus.')->group(function () {
@@ -52,6 +53,8 @@ Route::middleware(['role:pengurus'])->prefix('pengurus')->name('pengurus.')->gro
 
 Route::middleware(['role:penghuni'])->prefix('penghuni')->name('penghuni.')->group(function () {
     Route::get('/dashboard', PenghuniDashboardController::class)->name('dashboard');
+    Route::get('/invoices', [PenghuniInvoiceController::class, 'index'])->name('invoices.index');
+    Route::post('/invoices/{invoice}/snap-token', [PenghuniInvoiceController::class, 'snapToken'])->name('invoices.snap-token');
     Route::get('/cleaning', [\App\Http\Controllers\Penghuni\CleaningScheduleController::class, 'index'])->name('cleaning.index');
     Route::get('/cleaning/report', [\App\Http\Controllers\Penghuni\CleaningScheduleController::class, 'report'])->name('cleaning.report');
     Route::get('/cleaning/create', [\App\Http\Controllers\Penghuni\CleaningScheduleController::class, 'create'])->name('cleaning.create');
@@ -68,4 +71,4 @@ Route::middleware(['role:penghuni'])->prefix('penghuni')->name('penghuni.')->gro
 
 Route::get('/penghuni', function () {
     return redirect()->route('penghuni.dashboard');
-})->name('penghuni.dashboard');
+});
