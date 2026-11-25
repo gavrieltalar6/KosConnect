@@ -19,12 +19,12 @@ class TenantPolicy
 
     public function create(User $user): bool
     {
-        return $user->role->value === 'pemilik';
+        return in_array($user->role->value, ['pemilik', 'pengurus']);
     }
 
     public function update(User $user, Tenant $tenant): bool
     {
-        return $user->role->value === 'pemilik';
+        return in_array($user->role->value, ['pemilik', 'pengurus']);
     }
 
     public function delete(User $user, Tenant $tenant): bool
