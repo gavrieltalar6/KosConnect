@@ -19,12 +19,16 @@ class Invoice extends Model
         'due_date',
         'status',
         'paid_at',
+        'midtrans_order_id',
+        'snap_token',
+        'snap_token_created_at',
     ];
 
     protected $casts = [
         'status' => InvoiceStatus::class,
         'due_date' => 'date',
         'paid_at' => 'datetime',
+        'snap_token_created_at' => 'datetime',
         'amount' => 'decimal:2',
     ];
 
