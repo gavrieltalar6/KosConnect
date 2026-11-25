@@ -3,7 +3,16 @@
 @section('header', 'Tambah Kamar')
 @section('content')
     <div class="bg-white p-6 rounded shadow">
-        <h2 class="text-2xl font-bold mb-6">Tambah Kamar Baru</div>
+        @if ($errors->any())
+            <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                <ul class="list-disc pl-5">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+        <h2 class="text-2xl font-bold mb-6">Tambah Kamar Baru</h2>
         <form action="{{ route('pemilik.rooms.store') }}" method="POST">
             @csrf
             <div class="mb-4">

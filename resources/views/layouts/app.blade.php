@@ -1,9 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ config('app.name', 'KosConnect') }} - @yield('title')</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -64,9 +64,36 @@
                         <span>Manajemen Tagihan</span>
                     </a>
 
+                    <a href="{{ route('pemilik.damage_reports.index') }}"
+                       class="{{ $linkClass }} {{ request()->routeIs('pemilik.damage_reports.*') ? $activeClass : '' }}">
+                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M14.7 6.3a5 5 0 00-6.4 6.4L3 18l3 3 5.3-5.3a5 5 0 006.4-6.4L14 12l-2-2 2.7-3.7z"/>
+                        </svg>
+                        <span>Riwayat Kerusakan</span>
+                    </a>
+
+                    <a href="{{ route('password_resets.index') }}"
+                       class="{{ $linkClass }} {{ request()->routeIs('password_resets.*') ? $activeClass : '' }}">
+                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M12 15v2m-6 4h12a2 2 0 002-2v-7a2 2 0 00-2-2H6a2 2 0 00-2 2v7a2 2 0 002 2zm2-11V7a4 4 0 118 0v2"/>
+                        </svg>
+                        <span>Bantuan Reset Password</span>
+                    </a>
+
                 @endif
 
                 @if($role === 'pengurus')
+
+                    <a href="{{ route('pemilik.tenants.index') }}"
+                       class="{{ $linkClass }} {{ request()->routeIs('pemilik.tenants.*') ? $activeClass : '' }}">
+                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M17 20h5v-2a4 4 0 00-5-3.87M9 20H2v-2a4 4 0 017.75-1.35M16 3.13a4 4 0 010 7.75M12 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                        </svg>
+                        <span>Manajemen Penghuni</span>
+                    </a>
 
                     <a href="{{ route('pemilik.invoices.index') }}"
                        class="{{ $linkClass }} {{ request()->routeIs('pemilik.invoices.*') ? $activeClass : '' }}">
@@ -81,7 +108,7 @@
                        class="{{ $linkClass }} {{ request()->routeIs('pengurus.cleaning.index') ? $activeClass : '' }}">
                         <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M8 2v4m8-4v4M3 10h18M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z"/>
+                                  d="M8 2v4m8-4v4M3 10h18M5 4h14a2 2 0 012 2v14a2 2 0 01-2-2H5a2 2 0 01-2-2V6a2 2 0 012-2z"/>
                         </svg>
                         <span>Jadwal Kebersihan</span>
                     </a>
@@ -113,15 +140,24 @@
                         <span>Riwayat Kerusakan</span>
                     </a>
 
+                    <a href="{{ route('password_resets.index') }}"
+                       class="{{ $linkClass }} {{ request()->routeIs('password_resets.*') ? $activeClass : '' }}">
+                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M12 15v2m-6 4h12a2 2 0 002-2v-7a2 2 0 00-2-2H6a2 2 0 00-2 2v7a2 2 0 002 2zm2-11V7a4 4 0 118 0v2"/>
+                        </svg>
+                        <span>Bantuan Reset Password</span>
+                    </a>
+
                 @endif
 
                 @if($role === 'penghuni')
 
-                    <a href="#"
-                       class="{{ $linkClass }}">
+                    <a href="{{ route('penghuni.invoices.index') }}"
+                       class="{{ $linkClass }} {{ request()->routeIs('penghuni.invoices.*') ? $activeClass : '' }}">
                         <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M9 5h6m-6 4h6m-6 4h6m-9 7V4a1 1 0 011-1h12a1 1 0 011 1v16l-3-2-3 2-3-2-3 2-3-2z"/>
+                                  d="M9 5h6m-6 4h6m-6 4h6m-9 7V4a1 1 0 011-1h12a1 1 0 011 1v16l-3-2-3 2-3 2-3-2z"/>
                         </svg>
                         <span>Tagihan Saya</span>
                     </a>
@@ -161,8 +197,7 @@
             <div class="p-4 border-t border-indigo-600">
                 <form action="{{ route('logout') }}" method="POST">
                     @csrf
-                    <button type="submit"
-                            class="{{ $linkClass }} w-full text-left">
+                    <button type="submit" class="{{ $linkClass }} w-full text-left">
                         <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                   d="M17 16l4-4m0 0l-4-4m4 4H9m4 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h6a2 2 0 012 2v1"/>
@@ -190,14 +225,30 @@
 
             <div class="p-6">
                 @if(session('success'))
-                    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-                        {{ session('success') }}
+                    <div id="flash-alert-success" class="flex items-center justify-between bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-xl mb-5 shadow-xs transition-all duration-300 transform translate-y-0 opacity-100">
+                        <div class="flex items-center gap-3">
+                            <span class="flex-shrink-0 w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            </span>
+                            <span class="text-sm font-medium">{{ session('success') }}</span>
+                        </div>
+                        <button type="button" onclick="dismissAlert('flash-alert-success')" class="text-emerald-500 hover:text-emerald-700 p-1 rounded-lg hover:bg-emerald-100/50 transition">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
                     </div>
                 @endif
 
                 @if(session('error'))
-                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                        {{ session('error') }}
+                    <div id="flash-alert-error" class="flex items-center justify-between bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-xl mb-5 shadow-xs transition-all duration-300 transform translate-y-0 opacity-100">
+                        <div class="flex items-center gap-3">
+                            <span class="flex-shrink-0 w-8 h-8 rounded-lg bg-red-100 text-red-600 flex items-center justify-center">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                            </span>
+                            <span class="text-sm font-medium">{{ session('error') }}</span>
+                        </div>
+                        <button type="button" onclick="dismissAlert('flash-alert-error')" class="text-red-500 hover:text-red-700 p-1 rounded-lg hover:bg-red-100/50 transition">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
                     </div>
                 @endif
 
@@ -206,5 +257,14 @@
 
         </main>
     </div>
+
+    <script>
+        function dismissAlert(id) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.classList.add('opacity-0', '-translate-y-2');
+            setTimeout(() => el.remove(), 300);
+        }
+    </script>
 </body>
 </html>

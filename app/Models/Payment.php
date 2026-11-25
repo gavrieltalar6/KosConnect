@@ -16,6 +16,9 @@ class Payment extends Model
         'paid_at',
         'method',
         'note',
+        'midtrans_order_id',
+        'midtrans_transaction_id',
+        'payment_type',
     ];
 
     protected $casts = [
