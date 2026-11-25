@@ -26,9 +26,15 @@
             <input type="email" name="email" value="{{ old('email') }}" class="mt-1 block w-full border border-gray-300 rounded-md p-2" required>
         </div>
 
-        <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700">Password</label>
-            <input type="password" name="password" class="mt-1 block w-full border border-gray-300 rounded-md p-2" required>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Password Akun Penghuni</label>
+                <input type="password" name="password" class="mt-1 block w-full border border-gray-300 rounded-md p-2" required minlength="6">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Konfirmasi Password</label>
+                <input type="password" name="password_confirmation" class="mt-1 block w-full border border-gray-300 rounded-md p-2" required minlength="6">
+            </div>
         </div>
 
         <div class="mb-4">

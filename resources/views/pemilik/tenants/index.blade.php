@@ -37,13 +37,35 @@
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <a href="{{ route('pemilik.tenants.show', $tenant) }}" class="text-indigo-600 hover:text-indigo-900 mr-3">Detail</a>
-                            <a href="{{ route('pemilik.tenants.edit', $tenant) }}" class="text-yellow-600 hover:text-yellow-900 mr-3">Edit</a>
-                            <form action="{{ route('pemilik.tenants.destroy', $tenant) }}" method="POST" class="inline">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="text-red-600 hover:text-red-900" onclick="return confirm('Yakin ingin menghapus?')">Hapus</button>
-                            </form>
+                            <div class="flex items-center justify-end gap-1.5">
+                                <a href="{{ route('password_resets.edit', $tenant->user_id) }}" 
+                                   class="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-50 text-amber-700 hover:bg-amber-600 hover:text-white border border-amber-200 rounded text-xs font-medium transition"
+                                   title="Bantu reset password penghuni">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z"></path>
+                                    </svg>
+                                    Reset Pass
+                                </a>
+                                <a href="{{ route('pemilik.tenants.show', $tenant) }}" 
+                                   class="inline-flex items-center px-2.5 py-1 bg-gray-50 text-gray-700 hover:bg-gray-600 hover:text-white border border-gray-200 rounded text-xs font-medium transition">
+                                    Detail
+                                </a>
+                                <a href="{{ route('pemilik.tenants.edit', $tenant) }}" 
+                                   class="inline-flex items-center px-2.5 py-1 bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white border border-blue-200 rounded text-xs font-medium transition">
+                                    Edit
+                                </a>
+                                @if(auth()->user()->role?->value === 'pemilik')
+                                    <form action="{{ route('pemilik.tenants.destroy', $tenant) }}" method="POST" class="inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" 
+                                                class="inline-flex items-center px-2.5 py-1 bg-red-50 text-red-700 hover:bg-red-600 hover:text-white border border-red-200 rounded text-xs font-medium transition" 
+                                                onclick="return confirm('Yakin ingin menghapus?')">
+                                            Hapus
+                                        </button>
+                                    </form>
+                                @endif
+                            </div>
                         </td>
                     </tr>
                 @empty
