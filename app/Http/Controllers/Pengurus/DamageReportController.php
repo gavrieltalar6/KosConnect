@@ -133,3 +133,4 @@ class DamageReportController extends Controller
             ->with('success', $message);
     }
 }
+ 
