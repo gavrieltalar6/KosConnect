@@ -5,6 +5,10 @@ use App\Http\Controllers\Pemilik\DashboardController as PemilikDashboardControll
 use App\Http\Controllers\Pengurus\DashboardController as PengurusDashboardController;
 use App\Http\Controllers\Penghuni\DashboardController as PenghuniDashboardController;
 
+Route::get('/', function () {
+    return view('welcome');
+});
+
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
@@ -15,13 +19,22 @@ Route::middleware(['role:pemilik,pengurus'])->prefix('pemilik')->name('pemilik.'
     Route::post('invoices/{invoice}/payment', [\App\Http\Controllers\Pengurus\PaymentController::class, 'store'])->name('invoices.payment.store');
     Route::get('invoices/create', [\App\Http\Controllers\Pemilik\InvoiceController::class, 'create'])->name('invoices.create');
     Route::post('invoices', [\App\Http\Controllers\Pemilik\InvoiceController::class, 'store'])->name('invoices.store');
+
+    // Manajemen Penghuni (Pemilik & Pengurus dapat melihat, membuat akun penghuni, dan mengubah data)
+    Route::resource('tenants', \App\Http\Controllers\Pemilik\TenantController::class)->except(['destroy']);
+});
+
+Route::middleware(['role:pemilik,pengurus'])->group(function () {
+    Route::get('password-resets', [\App\Http\Controllers\PasswordResetController::class, 'index'])->name('password_resets.index');
+    Route::get('password-resets/{user}/edit', [\App\Http\Controllers\PasswordResetController::class, 'edit'])->name('password_resets.edit');
+    Route::put('password-resets/{user}', [\App\Http\Controllers\PasswordResetController::class, 'update'])->name('password_resets.update');
 });
 
 Route::middleware(['role:pemilik'])->prefix('pemilik')->name('pemilik.')->group(function () {
     Route::get('/dashboard', PemilikDashboardController::class)->name('dashboard');
     Route::resource('rooms', \App\Http\Controllers\Pemilik\RoomController::class)->except(['show']);
-    Route::resource('tenants', \App\Http\Controllers\Pemilik\TenantController::class);
-        Route::resource('invoices', \App\Http\Controllers\Pemilik\InvoiceController::class)->except(['index', 'create', 'store']);
+    Route::delete('tenants/{tenant}', [\App\Http\Controllers\Pemilik\TenantController::class, 'destroy'])->name('tenants.destroy');
+    Route::resource('invoices', \App\Http\Controllers\Pemilik\InvoiceController::class)->except(['index', 'create', 'store']);
 });
 
 Route::middleware(['role:pengurus'])->prefix('pengurus')->name('pengurus.')->group(function () {

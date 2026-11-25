@@ -30,13 +30,20 @@
                     <a href="{{ route('pemilik.invoices.index') }}" class="block p-3 rounded hover:bg-indigo-600 {{ request()->routeIs('pemilik.invoices.*') ? 'bg-indigo-600' : '' }}">
                         Manajemen Tagihan
                     </a>
+                    <a href="{{ route('password_resets.index') }}" class="block p-3 rounded hover:bg-indigo-600 {{ request()->routeIs('password_resets.*') ? 'bg-indigo-600' : '' }}">
+                        Bantuan Reset Password
+                    </a>
                 @endif
 
                 @if($role === 'pengurus')
+                    <a href="{{ route('pemilik.tenants.index') }}" class="block p-3 rounded hover:bg-indigo-600 {{ request()->routeIs('pemilik.tenants.*') ? 'bg-indigo-600' : '' }}">Manajemen Penghuni</a>
                     <a href="{{ route('pemilik.invoices.index') }}" class="block p-3 rounded hover:bg-indigo-600 {{ request()->routeIs('pemilik.invoices.*') ? 'bg-indigo-600' : '' }}">Manajemen Tagihan</a>
                     <a href="{{ route('pengurus.cleaning.index') }}" class="block p-3 rounded hover:bg-indigo-600 {{ request()->routeIs('pengurus.cleaning.index') ? 'bg-indigo-600' : '' }}">Jadwal Kebersihan</a>
                     <a href="{{ route('pengurus.cleaning.report') }}" class="block p-3 rounded hover:bg-indigo-600 {{ request()->routeIs('pengurus.cleaning.report') ? 'bg-indigo-600' : '' }}">Laporan Kebersihan</a>
                     <a href="{{ route('pengurus.damage_reports.index') }}" class="block p-3 rounded hover:bg-indigo-600 {{ request()->routeIs('pengurus.damage_reports.*') ? 'bg-indigo-600' : '' }}">Laporan Kerusakan</a>
+                    <a href="{{ route('password_resets.index') }}" class="block p-3 rounded hover:bg-indigo-600 {{ request()->routeIs('password_resets.*') ? 'bg-indigo-600' : '' }}">
+                        Bantuan Reset Password
+                    </a>
                 @endif
 
                 @if($role === 'penghuni')
