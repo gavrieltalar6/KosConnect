@@ -46,6 +46,15 @@
                         <span>Manajemen Penghuni</span>
                     </a>
 
+                    <a href="{{ route('pemilik.pengurus.index') }}"
+                       class="{{ $linkClass }} {{ request()->routeIs('pemilik.pengurus.*') ? $activeClass : '' }}">
+                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                        </svg>
+                        <span>Manajemen Pengurus</span>
+                    </a>
+
                     <a href="{{ route('pemilik.rooms.index') }}"
                        class="{{ $linkClass }} {{ request()->routeIs('pemilik.rooms.*') ? $activeClass : '' }}">
                         <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -62,6 +71,15 @@
                                   d="M9 5h6m-6 4h6m-6 4h6m-9 7V4a1 1 0 011-1h12a1 1 0 011 1v16l-3-2-3 2-3-2-3 2-3-2z"/>
                         </svg>
                         <span>Manajemen Tagihan</span>
+                    </a>
+
+                    <a href="{{ route('pengurus.reminders.index') }}"
+                       class="{{ $linkClass }} {{ request()->routeIs('pengurus.reminders.*') ? $activeClass : '' }}">
+                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                        </svg>
+                        <span>Pengingat Iuran</span>
                     </a>
 
                     <a href="{{ route('pemilik.damage_reports.index') }}"
@@ -102,6 +120,15 @@
                                   d="M9 5h6m-6 4h6m-6 4h6m-9 7V4a1 1 0 011-1h12a1 1 0 011 1v16l-3-2-3 2-3-2-3 2-3-2z"/>
                         </svg>
                         <span>Manajemen Tagihan</span>
+                    </a>
+
+                    <a href="{{ route('pengurus.reminders.index') }}"
+                       class="{{ $linkClass }} {{ request()->routeIs('pengurus.reminders.*') ? $activeClass : '' }}">
+                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                        </svg>
+                        <span>Pengingat Iuran</span>
                     </a>
 
                     <a href="{{ route('pengurus.cleaning.index') }}"
@@ -160,6 +187,15 @@
                                   d="M9 5h6m-6 4h6m-6 4h6m-9 7V4a1 1 0 011-1h12a1 1 0 011 1v16l-3-2-3 2-3 2-3-2z"/>
                         </svg>
                         <span>Tagihan Saya</span>
+                    </a>
+
+                    <a href="{{ route('penghuni.reminders.index') }}"
+                       class="{{ $linkClass }} {{ request()->routeIs('penghuni.reminders.*') ? $activeClass : '' }}">
+                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                        </svg>
+                        <span>Pengingat Iuran</span>
                     </a>
 
                     <a href="{{ route('penghuni.cleaning.index') }}"

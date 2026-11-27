@@ -21,6 +21,7 @@ class Tenant extends Model
         'telegram_link_token',
         'check_in_date',
         'due_day',
+        'is_reminder_active',
         'status',
     ];
 
@@ -28,6 +29,7 @@ class Tenant extends Model
         'status' => TenantStatus::class,
         'check_in_date' => 'date',
         'due_day' => 'integer',
+        'is_reminder_active' => 'boolean',
         'telegram_chat_id' => 'integer',
     ];
 
@@ -44,6 +46,21 @@ class Tenant extends Model
     public function invoices()
     {
         return $this->hasMany(Invoice::class);
+    }
+
+    public function reminderLogs()
+    {
+        return $this->hasMany(ReminderLog::class);
+    }
+
+    /**
+     * Mendapatkan tagihan belum lunas terdekat untuk penghuni ini.
+     */
+    public function nearestUnpaidInvoice()
+    {
+        return $this->hasOne(Invoice::class)
+            ->where('status', \App\Enums\InvoiceStatus::UNPAID)
+            ->orderBy('due_date', 'asc');
     }
 
     public function cleaningSchedules()

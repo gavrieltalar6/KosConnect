@@ -28,6 +28,10 @@ Route::middleware(['role:pemilik,pengurus'])->prefix('pemilik')->name('pemilik.'
 
     // Manajemen Penghuni (Pemilik & Pengurus dapat melihat, membuat akun penghuni, dan mengubah data)
     Route::resource('tenants', \App\Http\Controllers\Pemilik\TenantController::class)->except(['destroy']);
+
+    // Manajemen Pengurus (Pemilik dapat melihat, membuat, mengedit)
+    Route::resource('pengurus', \App\Http\Controllers\Pemilik\PengurusController::class)->except(['show', 'destroy']);
+    Route::put('pengurus/{user}/deactivate', [\App\Http\Controllers\Pemilik\PengurusController::class, 'deactivate'])->name('pengurus.deactivate');
 });
 
 Route::middleware(['role:pemilik,pengurus'])->group(function () {
@@ -45,8 +49,10 @@ Route::post('/midtrans/notification', [MidtransNotificationController::class, 'h
 Route::middleware(['role:pemilik'])->prefix('pemilik')->name('pemilik.')->group(function () {
     Route::get('/dashboard', PemilikDashboardController::class)->name('dashboard');
     Route::get('/damage-reports', [\App\Http\Controllers\Pemilik\DamageReportController::class, 'index'])->name('damage_reports.index');
+    Route::get('/reminders', [\App\Http\Controllers\Pengurus\ReminderController::class, 'index'])->name('reminders.index');
     Route::resource('rooms', \App\Http\Controllers\Pemilik\RoomController::class)->except(['show']);
     Route::delete('tenants/{tenant}', [\App\Http\Controllers\Pemilik\TenantController::class, 'destroy'])->name('tenants.destroy');
+    Route::delete('pengurus/{user}', [\App\Http\Controllers\Pemilik\PengurusController::class, 'destroy'])->name('pengurus.destroy');
     Route::resource('invoices', \App\Http\Controllers\Pemilik\InvoiceController::class)->except(['index', 'create', 'store']);
 });
 
@@ -60,13 +66,24 @@ Route::middleware(['role:pengurus'])->prefix('pengurus')->name('pengurus.')->gro
     Route::get('/damage-reports', [\App\Http\Controllers\Pengurus\DamageReportController::class, 'index'])->name('damage_reports.index');
     Route::get('/damage-reports/history', [\App\Http\Controllers\Pengurus\DamageReportController::class, 'history'])->name('damage_reports.history');
     Route::put('/damage-reports/{report}', [\App\Http\Controllers\Pengurus\DamageReportController::class, 'update'])->name('damage_reports.update');
-    
+});
+
+Route::middleware(['role:pemilik,pengurus'])->prefix('pengurus')->name('pengurus.')->group(function () {
+    // Pengingat Iuran (Auto Reminder) - diakses oleh pemilik dan pengurus
+    Route::get('/reminders', [\App\Http\Controllers\Pengurus\ReminderController::class, 'index'])->name('reminders.index');
+    Route::patch('/reminders/{tenant}/toggle', [\App\Http\Controllers\Pengurus\ReminderController::class, 'toggle'])->name('reminders.toggle');
+    Route::post('/reminders/{tenant}/send', [\App\Http\Controllers\Pengurus\ReminderController::class, 'sendManual'])->name('reminders.send');
 });
 
 Route::middleware(['role:penghuni'])->prefix('penghuni')->name('penghuni.')->group(function () {
     Route::get('/dashboard', PenghuniDashboardController::class)->name('dashboard');
     Route::get('/invoices', [PenghuniInvoiceController::class, 'index'])->name('invoices.index');
     Route::post('/invoices/{invoice}/snap-token', [PenghuniInvoiceController::class, 'snapToken'])->name('invoices.snap-token');
+    
+    // Pengingat Iuran Penghuni
+    Route::get('/reminders', [\App\Http\Controllers\Penghuni\ReminderController::class, 'index'])->name('reminders.index');
+    Route::patch('/reminders/toggle', [\App\Http\Controllers\Penghuni\ReminderController::class, 'toggle'])->name('reminders.toggle');
+
     Route::get('/cleaning', [\App\Http\Controllers\Penghuni\CleaningScheduleController::class, 'index'])->name('cleaning.index');
     Route::get('/cleaning/report', [\App\Http\Controllers\Penghuni\CleaningScheduleController::class, 'report'])->name('cleaning.report');
     Route::get('/cleaning/create', [\App\Http\Controllers\Penghuni\CleaningScheduleController::class, 'create'])->name('cleaning.create');
