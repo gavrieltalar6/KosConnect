@@ -5,7 +5,7 @@
 @section('content')
 <div class="space-y-6">
     <!-- Header Card -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200/80 p-6">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200/80 p-4 sm:p-6">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
                 <h3 class="text-lg font-bold text-gray-900">Riwayat Laporan Kerusakan Anda</h3>
@@ -13,7 +13,7 @@
             </div>
             <div>
                 <a href="{{ route('penghuni.damage_reports.create') }}" 
-                   class="inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors duration-150">
+                   class="w-full sm:w-auto justify-center inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors duration-150">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                     </svg>

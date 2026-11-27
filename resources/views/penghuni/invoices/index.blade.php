@@ -4,19 +4,19 @@
 
 @section('content')
 <div class="space-y-6">
-    <div class="bg-white p-6 rounded shadow flex items-center justify-between">
+    <div class="bg-white p-4 sm:p-6 rounded shadow flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
             <p class="text-sm text-gray-500">Total yang harus dibayar</p>
-            <p class="text-3xl font-bold {{ $totalUnpaid > 0 ? 'text-red-600' : 'text-green-600' }}">Rp {{ number_format($totalUnpaid, 0, ',', '.') }}</p>
+            <p class="text-2xl sm:text-3xl font-bold {{ $totalUnpaid > 0 ? 'text-red-600' : 'text-green-600' }}">Rp {{ number_format($totalUnpaid, 0, ',', '.') }}</p>
         </div>
         @if($totalUnpaid == 0)
-            <span class="px-3 py-1 rounded-full bg-green-100 text-green-800 text-sm font-semibold">Tidak ada tunggakan</span>
+            <span class="self-start sm:self-auto px-3 py-1 rounded-full bg-green-100 text-green-800 text-sm font-semibold">Tidak ada tunggakan</span>
         @endif
     </div>
 
     <div id="pay-alert" class="hidden px-4 py-3 rounded-xl text-sm font-medium"></div>
 
-    <div class="bg-white p-6 rounded shadow">
+    <div class="bg-white p-4 sm:p-6 rounded shadow">
         <h3 class="text-lg font-semibold mb-4">Daftar Tagihan</h3>
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">

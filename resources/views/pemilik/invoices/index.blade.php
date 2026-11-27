@@ -3,10 +3,10 @@
 @section('header', 'Daftar Tagihan')
 
 @section('content')
-<div class="bg-white p-6 rounded shadow">
-    <div class="flex justify-between items-center mb-6">
+<div class="bg-white p-4 sm:p-6 rounded shadow">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
         <h3 class="text-lg font-semibold">Semua Tagihan</h3>
-        <a href="{{ route('pemilik.invoices.create') }}" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">Buat Tagihan Baru</a>
+        <a href="{{ route('pemilik.invoices.create') }}" class="w-full sm:w-auto text-center bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">Buat Tagihan Baru</a>
     </div>
 
     <div class="overflow-x-auto">

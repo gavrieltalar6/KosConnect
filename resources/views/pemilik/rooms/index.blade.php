@@ -2,10 +2,10 @@
 @section('title', 'Daftar Kamar')
 @section('header', 'Manajemen Kamar')
 @section('content')
-    <div class="bg-white p-6 rounded shadow">
-        <div class="flex justify-between mb-4">
+    <div class="bg-white p-4 sm:p-6 rounded shadow">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
             <h2 class="text-xl font-semibold">Daftar Kamar</h2>
-            <a href="{{ route('pemilik.rooms.create') }}" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">+ Tambah Kamar</a>
+            <a href="{{ route('pemilik.rooms.create') }}" class="w-full sm:w-auto text-center bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">+ Tambah Kamar</a>
         </div>
 
         @if(session('success'))
@@ -14,25 +14,26 @@
             </div>
         @endif
 
+        <div class="overflow-x-auto">
         <table class="min-w-full bg-white border">
             <thead>
                 <tr>
-                    <th class="border px-4 py-2">No</th>
-                    <th class="border px-4 py-2">Nomor Kamar</th>
-                    <th class="border px-4 py-2">Lantai</th>
-                    <th class="border px-4 py-2">Harga Bulanan</th>
-                    <th class="border px-4 py-2">Status</th>
-                    <th class="border px-4 py-2">Aksi</th>
+                    <th class="border px-4 py-2 whitespace-nowrap">No</th>
+                    <th class="border px-4 py-2 whitespace-nowrap">Nomor Kamar</th>
+                    <th class="border px-4 py-2 whitespace-nowrap">Lantai</th>
+                    <th class="border px-4 py-2 whitespace-nowrap">Harga Bulanan</th>
+                    <th class="border px-4 py-2 whitespace-nowrap">Status</th>
+                    <th class="border px-4 py-2 whitespace-nowrap">Aksi</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($rooms as $room)
                     <tr>
-                        <td class="border px-4 py-2">{{ $loop->iteration + ($rooms->currentPage() - 1) * $rooms->perPage() }}</td>
-                        <td class="border px-4 py-2">{{ $room->room_number }}</td>
-                        <td class="border px-4 py-2">{{ $room->floor ?? '-' }}</td>
-                        <td class="border px-4 py-2">Rp {{ number_format($room->monthly_price, 0, ',', '.') }}</td>
-                        <td class="border px-4 py-2">
+                        <td class="border px-4 py-2 whitespace-nowrap">{{ $loop->iteration + ($rooms->currentPage() - 1) * $rooms->perPage() }}</td>
+                        <td class="border px-4 py-2 whitespace-nowrap">{{ $room->room_number }}</td>
+                        <td class="border px-4 py-2 whitespace-nowrap">{{ $room->floor ?? '-' }}</td>
+                        <td class="border px-4 py-2 whitespace-nowrap">Rp {{ number_format($room->monthly_price, 0, ',', '.') }}</td>
+                        <td class="border px-4 py-2 whitespace-nowrap">
                             @php
                                 $statusColors = [
                                     'available' => 'bg-green-100 text-green-800',
@@ -49,7 +50,7 @@
                                 {{ $statusText[$room->status->value] ?? $room->status->value }}
                             </span>
                         </td>
-                        <td class="border px-4 py-2">
+                        <td class="border px-4 py-2 whitespace-nowrap">
                             <a href="{{ route('pemilik.rooms.edit', $room) }}" class="text-indigo-600 hover:underline">Edit</a>
                             <form action="{{ route('pemilik.rooms.destroy', $room) }}" method="POST" class="inline" onsubmit="return confirm('Yakin ingin menghapus kamar ini?');">
                                 @csrf
@@ -61,6 +62,7 @@
                 @endforeach
             </tbody>
         </table>
+        </div>
 
         <div class="mt-4">{{ $rooms->links() }}</div>
     </div>

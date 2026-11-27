@@ -3,12 +3,13 @@
 @section('header', 'Laporan Kebersihan Kamar')
 
 @section('content')
-<div class="bg-white p-6 rounded shadow">
-    <div class="flex justify-between items-center mb-6">
+<div class="bg-white p-4 sm:p-6 rounded shadow">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
         <h3 class="text-lg font-semibold">Riwayat Laporan Kebersihan</h3>
-        <a href="{{ route('penghuni.cleaning.index') }}" class="text-indigo-600 hover:text-indigo-900 font-medium">Lihat Jadwal Kebersihan &rarr;</a>
+        <a href="{{ route('penghuni.cleaning.index') }}" class="text-indigo-600 hover:text-indigo-900 font-medium shrink-0">Lihat Jadwal Kebersihan &rarr;</a>
     </div>
 
+    <div class="overflow-x-auto">
     <table class="min-w-full divide-y divide-gray-200">
         <thead>
             <tr>
@@ -39,6 +40,7 @@
             @endforelse
         </tbody>
     </table>
+    </div>
 
     <div class="mt-4">
         {{ $schedules->links() }}

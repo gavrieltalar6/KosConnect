@@ -5,7 +5,7 @@
 @section('content')
 <div class="max-w-2xl mx-auto space-y-6">
     <!-- Kartu Informasi Akun Target -->
-    <div class="bg-white p-6 rounded shadow border-l-4 border-indigo-500">
+    <div class="bg-white p-4 sm:p-6 rounded shadow border-l-4 border-indigo-500">
         <h3 class="text-md font-semibold text-gray-800 mb-3 text-center">Informasi Akun yang Akan Direset</h3>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
             <div>
@@ -32,7 +32,7 @@
     </div>
 
     <!-- Form Ganti Password (Input 2x) -->
-    <div class="bg-white p-6 rounded shadow">
+    <div class="bg-white p-4 sm:p-6 rounded shadow">
         <div class="mb-4 text-center">
             <h4 class="text-lg font-semibold text-gray-800">Setel Password Baru</h4>
             <p class="text-sm text-gray-600 mt-1">

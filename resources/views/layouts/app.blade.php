@@ -8,16 +8,30 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-gray-100 font-sans">
-    <div class="flex min-h-screen">
+    <div class="flex min-h-screen overflow-x-hidden">
+
+        <!-- Mobile Sidebar Backdrop -->
+        <div id="sidebar-backdrop"
+             onclick="toggleSidebar()"
+             class="fixed inset-0 bg-black/50 z-30 hidden md:hidden transition-opacity"></div>
 
         <!-- Sidebar -->
-        <aside class="w-64 bg-indigo-700 text-white flex flex-col shrink-0">
+        <aside id="app-sidebar"
+               class="fixed inset-y-0 left-0 z-40 w-64 bg-indigo-700 text-white flex flex-col shrink-0 transform -translate-x-full transition-transform duration-200 ease-in-out md:static md:translate-x-0">
 
-            <div class="p-6 text-2xl font-bold border-b border-indigo-600">
-                {{ config('app.name') }}
+            <div class="p-5 sm:p-6 text-2xl font-bold border-b border-indigo-600 flex items-center justify-between">
+                <span>{{ config('app.name') }}</span>
+                <button type="button"
+                        onclick="toggleSidebar()"
+                        aria-label="Tutup menu"
+                        class="md:hidden p-1.5 rounded-lg text-indigo-200 hover:text-white hover:bg-indigo-600">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
             </div>
 
-            <nav class="flex-grow p-4 space-y-2">
+            <nav class="flex-grow p-4 space-y-2 overflow-y-auto">
 
                 @php
                     $role = auth()->user()->role?->value;
@@ -210,20 +224,30 @@
         </aside>
 
         <!-- Main Content -->
-        <main class="flex-grow flex flex-col min-w-0">
+        <main class="flex-grow flex flex-col min-w-0 w-full">
 
-            <header class="bg-white shadow p-4 flex justify-between items-center">
-                <h2 class="text-xl font-semibold text-gray-800">
-                    @yield('header')
-                </h2>
+            <header class="bg-white shadow p-3 sm:p-4 flex justify-between items-center gap-3 sticky top-0 z-20 md:static">
+                <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+                    <button type="button"
+                            onclick="toggleSidebar()"
+                            aria-label="Buka menu"
+                            class="md:hidden p-2 -ml-1 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:outline-none">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                    </button>
+                    <h2 class="text-base sm:text-xl font-semibold text-gray-800 truncate">
+                        @yield('header')
+                    </h2>
+                </div>
 
-                <div class="text-gray-600">
-                    Selamat datang,
-                    <span class="font-bold">{{ auth()->user()->name }}</span>
+                <div class="text-xs sm:text-sm text-gray-600 shrink-0 text-right">
+                    <span class="hidden sm:inline">Selamat datang,</span>
+                    <span class="font-bold text-gray-800">{{ auth()->user()->name }}</span>
                 </div>
             </header>
 
-            <div class="p-6">
+            <div class="p-4 sm:p-6">
                 @if(session('success'))
                     <div id="flash-alert-success" class="flex items-center justify-between bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-xl mb-5 shadow-xs transition-all duration-300 transform translate-y-0 opacity-100">
                         <div class="flex items-center gap-3">
@@ -264,6 +288,14 @@
             if (!el) return;
             el.classList.add('opacity-0', '-translate-y-2');
             setTimeout(() => el.remove(), 300);
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('app-sidebar');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            if (!sidebar || !backdrop) return;
+            sidebar.classList.toggle('-translate-x-full');
+            backdrop.classList.toggle('hidden');
         }
     </script>
 </body>

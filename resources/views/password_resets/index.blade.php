@@ -5,7 +5,7 @@
 @section('content')
 <div class="space-y-6">
 
-    <div class="bg-white p-6 rounded shadow">
+    <div class="bg-white p-4 sm:p-6 rounded shadow">
         <!-- Title di Tengah -->
         <div class="mb-6">
             <h3 class="text-xl font-bold text-gray-800 text-center">Daftar Akun Pengguna</h3>
@@ -14,29 +14,29 @@
 
         <!-- Form Pencarian & Filter di Tengah -->
         <div class="flex justify-center mb-6">
-            <form action="{{ route('password_resets.index') }}" method="GET" class="flex flex-wrap items-center justify-center gap-2">
+            <form action="{{ route('password_resets.index') }}" method="GET" class="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center justify-center gap-2 w-full sm:w-auto">
                 <input 
                     type="text" 
                     name="search" 
                     value="{{ request('search') }}" 
                     placeholder="Cari nama atau email..." 
-                    class="border border-gray-300 rounded px-3 py-1.5 text-sm w-56"
+                    class="border border-gray-300 rounded px-3 py-1.5 text-sm w-full sm:w-56"
                 >
-                <select name="role" onchange="this.form.submit()" class="border border-gray-300 rounded px-3 py-1.5 text-sm cursor-pointer">
+                <select name="role" onchange="this.form.submit()" class="border border-gray-300 rounded px-3 py-1.5 text-sm cursor-pointer w-full sm:w-auto">
                     <option value="">Semua Role</option>
                     <option value="pengurus" {{ request('role') === 'pengurus' ? 'selected' : '' }}>Pengurus</option>
                     <option value="penghuni" {{ request('role') === 'penghuni' ? 'selected' : '' }}>Penghuni</option>
                 </select>
-                <select name="sort" onchange="this.form.submit()" class="border border-gray-300 rounded px-3 py-1.5 text-sm cursor-pointer">
+                <select name="sort" onchange="this.form.submit()" class="border border-gray-300 rounded px-3 py-1.5 text-sm cursor-pointer w-full sm:w-auto">
                     <option value="">Urutkan: Default</option>
                     <option value="name_asc" {{ request('sort') === 'name_asc' ? 'selected' : '' }}>Nama: A - Z</option>
                     <option value="name_desc" {{ request('sort') === 'name_desc' ? 'selected' : '' }}>Nama: Z - A</option>
                     <option value="role_pengurus" {{ request('sort') === 'role_pengurus' ? 'selected' : '' }}>Peran: Penghuni Dahulu</option>
                     <option value="role_penghuni" {{ request('sort') === 'role_penghuni' ? 'selected' : '' }}>Peran: Pengurus Dahulu</option>
                 </select>
-                <button type="submit" class="bg-indigo-600 text-white px-4 py-1.5 rounded text-sm hover:bg-indigo-700">Filter</button>
+                <button type="submit" class="bg-indigo-600 text-white px-4 py-1.5 rounded text-sm hover:bg-indigo-700 w-full sm:w-auto">Filter</button>
                 @if(request('search') || request('role') || request('sort'))
-                    <a href="{{ route('password_resets.index') }}" class="bg-gray-200 text-gray-700 px-3 py-1.5 rounded text-sm hover:bg-gray-300">Reset</a>
+                    <a href="{{ route('password_resets.index') }}" class="bg-gray-200 text-gray-700 px-3 py-1.5 rounded text-sm hover:bg-gray-300 text-center w-full sm:w-auto">Reset</a>
                 @endif
             </form>
         </div>

@@ -41,9 +41,9 @@
 </div>
 
 {{-- TABEL LAPORAN KEBERSIHAN --}}
-<div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200/80">
+<div class="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200/80">
 
-    <div class="flex justify-between items-center mb-6">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
         <div>
             <h3 class="text-lg font-semibold text-gray-800">
                 Log Laporan Kebersihan
@@ -52,7 +52,7 @@
         </div>
 
         <a href="{{ route('pengurus.cleaning.index') }}"
-           class="inline-flex items-center text-sm text-indigo-600 hover:text-indigo-800 font-medium">
+           class="inline-flex items-center text-sm text-indigo-600 hover:text-indigo-800 font-medium shrink-0">
             Lihat Verifikasi Jadwal &rarr;
         </a>
     </div>

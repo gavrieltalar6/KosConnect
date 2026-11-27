@@ -76,13 +76,13 @@
     </div>
 
     <!-- Monitoring Kerusakan Terbaru -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200/80 p-6">
-        <div class="flex items-center justify-between mb-4">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200/80 p-4 sm:p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
             <div>
                 <h3 class="text-base font-bold text-gray-900">Laporan Kerusakan Fasilitas Terbaru</h3>
                 <p class="text-xs text-gray-500 mt-0.5">Daftar laporan fasilitas kos yang baru masuk atau sedang ditangani pengurus.</p>
             </div>
-            <a href="{{ route('pemilik.damage_reports.index') }}" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800">
+            <a href="{{ route('pemilik.damage_reports.index') }}" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 shrink-0">
                 Lihat Seluruh Laporan &rarr;
             </a>
         </div>

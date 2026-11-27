@@ -5,13 +5,13 @@
 @section('content')
 <div class="space-y-6">
     <!-- Header Card -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200/80 p-6">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200/80 p-4 sm:p-6">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
                 <h3 class="text-lg font-bold text-gray-900">Riwayat Laporan Selesai</h3>
                 <p class="text-sm text-gray-500 mt-1">Daftar arsip laporan kerusakan fasilitas kos yang telah tuntas ditangani.</p>
             </div>
-            <div class="flex items-center gap-3">
+            <div class="flex flex-wrap items-center gap-3">
                 <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
                     {{ $reports->total() }} Laporan Selesai
                 </span>
@@ -23,15 +23,15 @@
         </div>
 
         <!-- Search Toolbar -->
-        <div class="mt-6 pt-5 border-t border-gray-100 flex items-center justify-between">
+        <div class="mt-6 pt-5 border-t border-gray-100 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
             <span class="text-xs text-gray-500">Menampilkan seluruh data perbaikan yang telah diselesaikan.</span>
-            <form action="{{ route('pengurus.damage_reports.history') }}" method="GET" class="flex items-center gap-2">
-                <div class="relative">
+            <form action="{{ route('pengurus.damage_reports.history') }}" method="GET" class="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full md:w-auto">
+                <div class="relative flex-1 sm:flex-initial">
                     <input type="text" 
                            name="search" 
                            value="{{ $search ?? '' }}" 
                            placeholder="Cari penghuni, kamar, judul..." 
-                           class="w-64 pl-9 pr-3 py-1.5 text-xs bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
+                           class="w-full sm:w-64 pl-9 pr-3 py-1.5 text-xs bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
                     <svg class="w-4 h-4 text-gray-400 absolute left-2.5 top-2" width="16" height="16" style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                     </svg>

@@ -372,8 +372,13 @@
                         {{ $schedule->tenant->full_name ?? 'Penghuni tidak ditemukan' }}
                     </div>
 
-                    <div class="cleaning-room">
-                        Kamar {{ $schedule->room?->room_number ?? $schedule->tenant?->room?->room_number ?? '-' }}
+                    <div class="cleaning-room" style="margin-top: 6px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                        <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; background-color: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe;">
+                            Kamar {{ $schedule->room?->room_number ?? $schedule->tenant?->room?->room_number ?? '-' }}
+                        </span>
+                        @if(!empty($schedule->note))
+                            <span style="font-size: 13px; color: #64748b; font-weight: 400;">Catatan: {{ $schedule->note }}</span>
+                        @endif
                     </div>
 
                     <div class="cleaning-muted cleaning-time">
