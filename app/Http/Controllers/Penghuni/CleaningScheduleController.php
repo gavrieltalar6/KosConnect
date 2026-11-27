@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Penghuni;
 
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\CleaningSchedule;
 use App\Enums\CleaningScheduleStatus;
@@ -61,24 +62,44 @@ public function index()
     }
 
     
+
 public function store(Request $request)
 {
     $validated = $request->validate([
-    'requested_date' => ['required', 'date', 'after_or_equal:today'],
-    'requested_time' => ['required', 'date_format:H:i'],
-    'presence_status' => ['required', 'in:occupied,vacant'],
-    'note' => ['nullable', 'string'],
-], [
-    'requested_date.after_or_equal' => 'Tanggal pengajuan tidak boleh sebelum hari ini.',
-    'requested_date.required' => 'Tanggal pembersihan wajib diisi.',
-    'requested_time.required' => 'Waktu pembersihan wajib diisi.',
-    'presence_status.required' => 'Status keberadaan wajib dipilih.',
-]);
+        'requested_date' => ['required', 'date', 'after_or_equal:today'],
+        'requested_time' => ['required', 'date_format:H:i'],
+        'presence_status' => ['required', 'in:occupied,vacant'],
+        'note' => ['nullable', 'string'],
+    ], [
+        'requested_date.after_or_equal' => 'Tanggal pengajuan tidak boleh sebelum hari ini.',
+        'requested_date.required' => 'Tanggal pembersihan wajib diisi.',
+        'requested_time.required' => 'Waktu pembersihan wajib diisi.',
+        'presence_status.required' => 'Status keberadaan wajib dipilih.',
+    ]);
+
     $tenant = Auth::user()->tenant;
 
     if (!$tenant) {
         return back()->withInput()
             ->with('error', 'Akun penghuni belum terhubung dengan data tenant.');
+    }
+
+    // Periksa apakah jadwal sudah digunakan penghuni lain
+    $scheduleExists = CleaningSchedule::whereDate(
+        'requested_date',
+        $validated['requested_date']
+    )
+        ->whereTime('requested_time', $validated['requested_time'])
+        ->whereIn('status', [
+            CleaningScheduleStatus::PENDING->value,
+            CleaningScheduleStatus::APPROVED->value,
+            CleaningScheduleStatus::RESCHEDULED->value,
+        ])
+        ->exists();
+
+    if ($scheduleExists) {
+        return back()->withInput()
+            ->with('error', 'Pengajuan gagal! Jadwal pada tanggal dan jam tersebut sudah diambil oleh penghuni lain. Silakan pilih jam yang berbeda.');
     }
 
     CleaningSchedule::create([
@@ -95,6 +116,7 @@ public function store(Request $request)
         ->route('penghuni.cleaning.index')
         ->with('success', 'Pengajuan pembersihan kamar berhasil dikirim.');
 }
+
 
 
     public function edit(CleaningSchedule $schedule)

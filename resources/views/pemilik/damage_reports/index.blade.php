@@ -129,7 +129,7 @@
                             Penghuni
                         </th>
                         <th scope="col" class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                            Kamar
+                            Lokasi
                         </th>
                         <th scope="col" class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                             Laporan Kerusakan
@@ -163,14 +163,16 @@
                             @endif
                         </td>
 
-                        <!-- Kamar -->
+                        <!-- Lokasi -->
                         <td class="px-6 py-4 whitespace-nowrap">
-                            @if($report->room)
+                            @if($report->location_type === 'own_room')
                                 <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100">
                                     Kamar {{ $report->room->room_number ?? $report->room->number }}
                                 </span>
                             @else
-                                <span class="text-xs text-gray-400 italic">Tanpa kamar</span>
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-yellow-50 text-yellow-700 border border-yellow-200">
+                                    Ruang Umum
+                                </span>
                             @endif
                         </td>
 
@@ -253,7 +255,8 @@
                                         'title' => $report->title,
                                         'tenant' => $report->tenant->full_name ?? '-',
                                         'phone' => $report->tenant?->phone ?? '-',
-                                        'room' => $report->room ? 'Kamar ' . ($report->room->room_number ?? $report->room->number) : '-',
+                                        'location' => $report->location_label,
+                                        'room' => $report->location_label,
                                         'handler' => $report->handler->name ?? 'Belum ada',
                                         'status' => $report->status instanceof \App\Enums\DamageReportStatus ? $report->status->getLabel() : ucfirst($statusVal ?? ''),
                                         'status_val' => $statusVal,
@@ -338,8 +341,8 @@
                         <p id="modalPhone" class="text-xs text-gray-500"></p>
                     </div>
                     <div>
-                        <span class="text-[11px] font-semibold text-gray-400 uppercase">Kamar</span>
-                        <p id="modalRoom" class="text-sm font-semibold text-indigo-600 mt-0.5"></p>
+                        <span class="text-[11px] font-semibold text-gray-400 uppercase">Lokasi</span>
+                        <p id="modalLocation" class="text-sm font-semibold text-indigo-600 mt-0.5"></p>
                     </div>
                     <div>
                         <span class="text-[11px] font-semibold text-gray-400 uppercase">Pengurus Penanggung Jawab</span>
@@ -372,7 +375,7 @@ function showReportDetail(data) {
     document.getElementById('modalTitle').textContent = data.title;
     document.getElementById('modalTenant').textContent = data.tenant;
     document.getElementById('modalPhone').textContent = data.phone !== '-' ? data.phone : '';
-    document.getElementById('modalRoom').textContent = data.room;
+    document.getElementById('modalLocation').textContent = data.location ?? data.room;
     document.getElementById('modalHandler').textContent = data.handler;
     
     const statusElem = document.getElementById('modalStatus');

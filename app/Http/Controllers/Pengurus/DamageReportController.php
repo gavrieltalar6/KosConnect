@@ -34,6 +34,7 @@ class DamageReportController extends Controller
             $baseQuery->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
                   ->orWhere('description', 'like', "%{$search}%")
+                  ->orWhere('shared_area_detail', 'like', "%{$search}%")
                   ->orWhereHas('tenant', function ($tq) use ($search) {
                       $tq->where('full_name', 'like', "%{$search}%")
                          ->orWhere('phone', 'like', "%{$search}%");
@@ -73,6 +74,7 @@ class DamageReportController extends Controller
             $baseQuery->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
                   ->orWhere('description', 'like', "%{$search}%")
+                  ->orWhere('shared_area_detail', 'like', "%{$search}%")
                   ->orWhereHas('tenant', function ($tq) use ($search) {
                       $tq->where('full_name', 'like', "%{$search}%");
                   })
@@ -133,3 +135,4 @@ class DamageReportController extends Controller
             ->with('success', $message);
     }
 }
+ 

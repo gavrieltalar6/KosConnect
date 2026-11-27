@@ -37,7 +37,7 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             @if($invoice->status->value === 'unpaid')
-                                <a href="{{ route('pemilik.invoices.payment.create', $invoice) }}" class="text-indigo-600 hover:text-indigo-900 font-semibold">Bayar</a>
+                                <a href="{{ route('invoices.payment.create', $invoice) }}" class="text-indigo-600 hover:text-indigo-900 font-semibold">Bayar</a>
                             @endif
                         </td>
                     </tr>

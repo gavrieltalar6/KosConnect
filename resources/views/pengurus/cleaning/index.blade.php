@@ -66,6 +66,13 @@
         font-weight: 500;
     }
 
+    .cleaning-room {
+    margin-top: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+    }
+
     .stat-pending .cleaning-stat-number {
         color: #d58a00;
     }
@@ -363,6 +370,10 @@
 
                     <div class="cleaning-tenant">
                         {{ $schedule->tenant->full_name ?? 'Penghuni tidak ditemukan' }}
+                    </div>
+
+                    <div class="cleaning-room">
+                        Kamar {{ $schedule->room?->room_number ?? $schedule->tenant?->room?->room_number ?? '-' }}
                     </div>
 
                     <div class="cleaning-muted cleaning-time">
