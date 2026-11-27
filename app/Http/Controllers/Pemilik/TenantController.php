@@ -125,6 +125,34 @@ class TenantController extends Controller
         return redirect()->route('pemilik.tenants.index')->with('success', 'Data penghuni berhasil diperbarui.');
     }
 
+    public function deactivate(Tenant $tenant)
+    {
+        DB::transaction(function () use ($tenant) {
+            $tenant->update(['status' => TenantStatus::INACTIVE]);
+            $tenant->user?->update(['is_active' => false]);
+            $tenant->room?->syncOccupancyStatus();
+        });
+
+        return redirect()->route('pemilik.tenants.index')
+            ->with('success', "Akun penghuni {$tenant->full_name} berhasil dinonaktifkan.");
+    }
+
+    public function activate(Tenant $tenant)
+    {
+        if ($this->roomIsTaken($tenant->room_id, $tenant->id)) {
+            return back()->with('error', 'Kamar penghuni ini sudah ditempati penghuni aktif lain. Silakan ubah kamar melalui Edit Detail terlebih dahulu.');
+        }
+
+        DB::transaction(function () use ($tenant) {
+            $tenant->update(['status' => TenantStatus::ACTIVE]);
+            $tenant->user?->update(['is_active' => true]);
+            $tenant->room?->syncOccupancyStatus();
+        });
+
+        return redirect()->route('pemilik.tenants.index')
+            ->with('success', "Akun penghuni {$tenant->full_name} berhasil diaktifkan.");
+    }
+
     public function destroy(Tenant $tenant)
     {
         DB::transaction(function () use ($tenant) {

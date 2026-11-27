@@ -28,10 +28,8 @@ Route::middleware(['role:pemilik,pengurus'])->prefix('pemilik')->name('pemilik.'
 
     // Manajemen Penghuni (Pemilik & Pengurus dapat melihat, membuat akun penghuni, dan mengubah data)
     Route::resource('tenants', \App\Http\Controllers\Pemilik\TenantController::class)->except(['destroy']);
-
-    // Manajemen Pengurus (Pemilik dapat melihat, membuat, mengedit)
-    Route::resource('pengurus', \App\Http\Controllers\Pemilik\PengurusController::class)->except(['show', 'destroy']);
-    Route::put('pengurus/{user}/deactivate', [\App\Http\Controllers\Pemilik\PengurusController::class, 'deactivate'])->name('pengurus.deactivate');
+    Route::put('tenants/{tenant}/deactivate', [\App\Http\Controllers\Pemilik\TenantController::class, 'deactivate'])->name('tenants.deactivate');
+    Route::put('tenants/{tenant}/activate', [\App\Http\Controllers\Pemilik\TenantController::class, 'activate'])->name('tenants.activate');
 });
 
 Route::middleware(['role:pemilik,pengurus'])->group(function () {
@@ -52,7 +50,13 @@ Route::middleware(['role:pemilik'])->prefix('pemilik')->name('pemilik.')->group(
     Route::get('/reminders', [\App\Http\Controllers\Pengurus\ReminderController::class, 'index'])->name('reminders.index');
     Route::resource('rooms', \App\Http\Controllers\Pemilik\RoomController::class)->except(['show']);
     Route::delete('tenants/{tenant}', [\App\Http\Controllers\Pemilik\TenantController::class, 'destroy'])->name('tenants.destroy');
-    Route::delete('pengurus/{user}', [\App\Http\Controllers\Pemilik\PengurusController::class, 'destroy'])->name('pengurus.destroy');
+
+    // Manajemen Pengurus (Eksklusif Pemilik)
+    Route::resource('pengurus', \App\Http\Controllers\Pemilik\PengurusController::class)
+        ->parameters(['pengurus' => 'user'])
+        ->except(['show']);
+    Route::put('pengurus/{user}/deactivate', [\App\Http\Controllers\Pemilik\PengurusController::class, 'deactivate'])->name('pengurus.deactivate');
+    Route::put('pengurus/{user}/activate', [\App\Http\Controllers\Pemilik\PengurusController::class, 'activate'])->name('pengurus.activate');
     Route::resource('invoices', \App\Http\Controllers\Pemilik\InvoiceController::class)->except(['index', 'create', 'store']);
 });
 
@@ -79,7 +83,7 @@ Route::middleware(['role:penghuni'])->prefix('penghuni')->name('penghuni.')->gro
     Route::get('/dashboard', PenghuniDashboardController::class)->name('dashboard');
     Route::get('/invoices', [PenghuniInvoiceController::class, 'index'])->name('invoices.index');
     Route::post('/invoices/{invoice}/snap-token', [PenghuniInvoiceController::class, 'snapToken'])->name('invoices.snap-token');
-    
+
     // Pengingat Iuran Penghuni
     Route::get('/reminders', [\App\Http\Controllers\Penghuni\ReminderController::class, 'index'])->name('reminders.index');
     Route::patch('/reminders/toggle', [\App\Http\Controllers\Penghuni\ReminderController::class, 'toggle'])->name('reminders.toggle');
