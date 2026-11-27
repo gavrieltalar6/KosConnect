@@ -170,9 +170,8 @@
                                 <button type="button" 
                                         onclick="showDetailModal({{ json_encode([
                                             'title' => $report->title,
-                                            'room' => $report->location_type === 'own_room' ?
-  'Kamar ' . ($report->room->room_number ?? $report->room->number) :
-  'Ruang Umum',
+                                            'location' => $report->location_label,
+                                            'room' => $report->location_label,
                                             'created_at' => $report->created_at ? $report->created_at->format('d M Y, H:i') : '-',
                                             'status' => $report->status instanceof \App\Enums\DamageReportStatus ? $report->status->getLabel() : ucfirst($statusVal ?? ''),
                                             'status_val' => $statusVal,
@@ -310,7 +309,7 @@
 <script>
 function showDetailModal(data) {
     document.getElementById('modalTitle').textContent = data.title;
-    document.getElementById('modalRoom').textContent = data.room;
+    document.getElementById('modalRoom').textContent = data.location ?? data.room;
     document.getElementById('modalCreatedAt').textContent = data.created_at;
     document.getElementById('modalHandler').textContent = data.handler;
     
