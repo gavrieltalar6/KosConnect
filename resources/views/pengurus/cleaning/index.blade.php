@@ -42,7 +42,7 @@
     /* STATISTIK */
     .cleaning-stats {
         display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 10px;
         margin-bottom: 15px;
     }
@@ -72,10 +72,6 @@
 
     .stat-approved .cleaning-stat-number {
         color: #16a34a;
-    }
-
-    .stat-changed .cleaning-stat-number {
-        color: #2563eb;
     }
 
     /* SISTEM ANTREAN */
@@ -407,13 +403,6 @@
             <div class="cleaning-stat-label">Disetujui</div>
             <div class="cleaning-stat-number">
                 {{ $stats['approved'] }}
-            </div>
-        </div>
-
-        <div class="cleaning-stat stat-changed">
-            <div class="cleaning-stat-label">Diubah</div>
-            <div class="cleaning-stat-number">
-                {{ $stats['rescheduled'] }}
             </div>
         </div>
 

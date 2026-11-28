@@ -33,14 +33,6 @@
         </h3>
     </div>
 
-    {{-- Dijadwalkan Ulang --}}
-    <div class="flex-1 min-w-0 bg-white p-4 rounded-2xl shadow-sm">
-        <p class="text-sm text-gray-500">Dijadwalkan Ulang</p>
-        <h3 class="text-2xl font-bold text-blue-600 mt-2">
-            {{ $stats['rescheduled'] }}
-        </h3>
-    </div>
-
 </div>
 
 {{-- TABEL LAPORAN KEBERSIHAN --}}
