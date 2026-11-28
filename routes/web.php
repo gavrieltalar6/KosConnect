@@ -46,6 +46,7 @@ Route::post('/midtrans/notification', [MidtransNotificationController::class, 'h
 
 Route::middleware(['role:pemilik'])->prefix('pemilik')->name('pemilik.')->group(function () {
     Route::get('/dashboard', PemilikDashboardController::class)->name('dashboard');
+    Route::get('/cleaning-reports', [\App\Http\Controllers\Pemilik\CleaningReportController::class, 'index'])->name('cleaning_reports.index');
     Route::get('/damage-reports', [\App\Http\Controllers\Pemilik\DamageReportController::class, 'index'])->name('damage_reports.index');
     Route::get('/reminders', [\App\Http\Controllers\Pengurus\ReminderController::class, 'index'])->name('reminders.index');
     Route::resource('rooms', \App\Http\Controllers\Pemilik\RoomController::class)->except(['show']);
@@ -58,6 +59,10 @@ Route::middleware(['role:pemilik'])->prefix('pemilik')->name('pemilik.')->group(
     Route::put('pengurus/{user}/deactivate', [\App\Http\Controllers\Pemilik\PengurusController::class, 'deactivate'])->name('pengurus.deactivate');
     Route::put('pengurus/{user}/activate', [\App\Http\Controllers\Pemilik\PengurusController::class, 'activate'])->name('pengurus.activate');
     Route::resource('invoices', \App\Http\Controllers\Pemilik\InvoiceController::class)->except(['index', 'create', 'store']);
+
+    // Profil Pemilik
+    Route::get('/profile', [\App\Http\Controllers\Pemilik\ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [\App\Http\Controllers\Pemilik\ProfileController::class, 'update'])->name('profile.update');
 });
 
 Route::middleware(['role:pengurus'])->prefix('pengurus')->name('pengurus.')->group(function () {
@@ -70,6 +75,10 @@ Route::middleware(['role:pengurus'])->prefix('pengurus')->name('pengurus.')->gro
     Route::get('/damage-reports', [\App\Http\Controllers\Pengurus\DamageReportController::class, 'index'])->name('damage_reports.index');
     Route::get('/damage-reports/history', [\App\Http\Controllers\Pengurus\DamageReportController::class, 'history'])->name('damage_reports.history');
     Route::put('/damage-reports/{report}', [\App\Http\Controllers\Pengurus\DamageReportController::class, 'update'])->name('damage_reports.update');
+
+    // Profil Pengurus
+    Route::get('/profile', [\App\Http\Controllers\Pengurus\ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [\App\Http\Controllers\Pengurus\ProfileController::class, 'update'])->name('profile.update');
 });
 
 Route::middleware(['role:pemilik,pengurus'])->prefix('pengurus')->name('pengurus.')->group(function () {
@@ -100,6 +109,10 @@ Route::middleware(['role:penghuni'])->prefix('penghuni')->name('penghuni.')->gro
     Route::get('/damage-reports/create', [\App\Http\Controllers\Penghuni\DamageReportController::class, 'create'])->name('damage_reports.create');
     Route::post('/damage-reports', [\App\Http\Controllers\Penghuni\DamageReportController::class, 'store'])->name('damage_reports.store');
     Route::patch('/damage-reports/{report}/cancel', [\App\Http\Controllers\Penghuni\DamageReportController::class, 'cancel'])->name('damage_reports.cancel');
+
+    // Profil Penghuni
+    Route::get('/profile', [\App\Http\Controllers\Penghuni\ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [\App\Http\Controllers\Penghuni\ProfileController::class, 'update'])->name('profile.update');
 });
 
 Route::get('/penghuni', function () {
