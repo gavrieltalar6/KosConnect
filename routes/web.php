@@ -7,6 +7,7 @@ use App\Http\Controllers\Pengurus\DashboardController as PengurusDashboardContro
 use App\Http\Controllers\Penghuni\DashboardController as PenghuniDashboardController;
 use App\Http\Controllers\Pengurus\PaymentController;
 use App\Http\Controllers\MidtransNotificationController;
+use App\Http\Controllers\TelegramWebhookController;
 use App\Http\Controllers\Penghuni\InvoiceController as PenghuniInvoiceController;
 
 // Redirect halaman utama (/) ke halaman login
@@ -32,25 +33,23 @@ Route::middleware(['role:pemilik,pengurus'])->prefix('pemilik')->name('pemilik.'
     Route::put('tenants/{tenant}/activate', [\App\Http\Controllers\Pemilik\TenantController::class, 'activate'])->name('tenants.activate');
 });
 
-Route::middleware(['role:pemilik,pengurus'])->group(function () {
-    Route::get('password-resets', [\App\Http\Controllers\PasswordResetController::class, 'index'])->name('password_resets.index');
-    Route::get('password-resets/{user}/edit', [\App\Http\Controllers\PasswordResetController::class, 'edit'])->name('password_resets.edit');
-    Route::put('password-resets/{user}', [\App\Http\Controllers\PasswordResetController::class, 'update'])->name('password_resets.update');
-    // Alias route tanpa prefix pemilik untuk kompatibilitas
-    Route::get('invoices/{invoice}/payment', [PaymentController::class, 'create'])->name('invoices.payment.create');
-    Route::post('invoices/{invoice}/payment', [PaymentController::class, 'store'])->name('invoices.payment.store');
-});
-
 // Webhook Notification dari Midtrans (di luar middleware role; CSRF dikecualikan di bootstrap/app.php)
 Route::post('/midtrans/notification', [MidtransNotificationController::class, 'handle'])->name('midtrans.notification');
 
+// Webhook bot Telegram (CSRF dikecualikan di bootstrap/app.php; diverifikasi lewat secret header)
+Route::post('/telegram/webhook', [TelegramWebhookController::class, 'handle'])->name('telegram.webhook');
+
 Route::middleware(['role:pemilik'])->prefix('pemilik')->name('pemilik.')->group(function () {
     Route::get('/dashboard', PemilikDashboardController::class)->name('dashboard');
-    Route::get('/cleaning-reports', [\App\Http\Controllers\Pemilik\CleaningReportController::class, 'index'])->name('cleaning_reports.index');
     Route::get('/damage-reports', [\App\Http\Controllers\Pemilik\DamageReportController::class, 'index'])->name('damage_reports.index');
     Route::get('/reminders', [\App\Http\Controllers\Pengurus\ReminderController::class, 'index'])->name('reminders.index');
     Route::resource('rooms', \App\Http\Controllers\Pemilik\RoomController::class)->except(['show']);
+
+    // Hapus penghuni (eksklusif pemilik)
     Route::delete('tenants/{tenant}', [\App\Http\Controllers\Pemilik\TenantController::class, 'destroy'])->name('tenants.destroy');
+
+    // Laporan Kebersihan (Pemilik)
+    Route::get('/cleaning-reports', [\App\Http\Controllers\Pemilik\CleaningReportController::class, 'index'])->name('cleaning_reports.index');
 
     // Manajemen Pengurus (Eksklusif Pemilik)
     Route::resource('pengurus', \App\Http\Controllers\Pemilik\PengurusController::class)
@@ -88,15 +87,21 @@ Route::middleware(['role:pemilik,pengurus'])->prefix('pengurus')->name('pengurus
     Route::post('/reminders/{tenant}/send', [\App\Http\Controllers\Pengurus\ReminderController::class, 'sendManual'])->name('reminders.send');
 });
 
+// Bantuan Reset Password - diakses oleh pemilik dan pengurus
+Route::middleware(['role:pemilik,pengurus'])->prefix('password-resets')->name('password_resets.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\PasswordResetController::class, 'index'])->name('index');
+    Route::get('/{user}/edit', [\App\Http\Controllers\PasswordResetController::class, 'edit'])->name('edit');
+    Route::put('/{user}', [\App\Http\Controllers\PasswordResetController::class, 'update'])->name('update');
+});
+
 Route::middleware(['role:penghuni'])->prefix('penghuni')->name('penghuni.')->group(function () {
     Route::get('/dashboard', PenghuniDashboardController::class)->name('dashboard');
     Route::get('/invoices', [PenghuniInvoiceController::class, 'index'])->name('invoices.index');
-    Route::post('/invoices/{invoice}/snap-token', [PenghuniInvoiceController::class, 'snapToken'])->name('invoices.snap-token');
 
-    // Pengingat Iuran Penghuni
+    // Pengingat Iuran (hubungkan Telegram & saklar on/off)
     Route::get('/reminders', [\App\Http\Controllers\Penghuni\ReminderController::class, 'index'])->name('reminders.index');
     Route::patch('/reminders/toggle', [\App\Http\Controllers\Penghuni\ReminderController::class, 'toggle'])->name('reminders.toggle');
-
+    Route::post('/invoices/{invoice}/snap-token', [PenghuniInvoiceController::class, 'snapToken'])->name('invoices.snap-token');
     Route::get('/cleaning', [\App\Http\Controllers\Penghuni\CleaningScheduleController::class, 'index'])->name('cleaning.index');
     Route::get('/cleaning/report', [\App\Http\Controllers\Penghuni\CleaningScheduleController::class, 'report'])->name('cleaning.report');
     Route::get('/cleaning/create', [\App\Http\Controllers\Penghuni\CleaningScheduleController::class, 'create'])->name('cleaning.create');
