@@ -12,29 +12,31 @@ use Illuminate\Support\Facades\Auth;
 
 class CleaningScheduleController extends Controller
 {
-    
-public function index()
-{
-    $tenant = Auth::user()->tenant;
+    public function index()
+    {
+        $tenant = Auth::user()->tenant;
 
-    if (!$tenant) {
-        return redirect()
-            ->route('penghuni.dashboard')
-            ->with('error', 'Akun penghuni belum terhubung dengan data tenant.');
+        // Periksa apakah penghuni memiliki kamar aktif
+        $hasActiveRoom = $tenant && !empty($tenant->room_id);
+
+        if ($hasActiveRoom) {
+            $schedules = CleaningSchedule::where('tenant_id', $tenant->id)
+                ->whereIn('status', [
+                    CleaningScheduleStatus::PENDING->value,
+                    CleaningScheduleStatus::APPROVED->value,
+                    CleaningScheduleStatus::RESCHEDULED->value,
+                ])
+                ->orderByDesc('created_at')
+                ->paginate(10);
+        } else {
+            $schedules = collect();
+        }
+
+        return view('penghuni.cleaning.index', compact(
+            'schedules',
+            'hasActiveRoom'
+        ));
     }
-
-    $schedules = CleaningSchedule::where('tenant_id', $tenant->id)
-        ->whereIn('status', [
-            CleaningScheduleStatus::PENDING->value,
-            CleaningScheduleStatus::APPROVED->value,
-            CleaningScheduleStatus::RESCHEDULED->value,
-        ])
-        ->orderByDesc('created_at')
-        ->paginate(10);
-
-    return view('penghuni.cleaning.index', compact('schedules'));
-}
-
 
     public function report()
     {
@@ -58,70 +60,85 @@ public function index()
 
     public function create()
     {
+        $tenant = Auth::user()->tenant;
+
+        // Cegah penghuni tanpa kamar membuka form pengajuan
+        if (!$tenant || empty($tenant->room_id)) {
+            return redirect()
+                ->route('penghuni.cleaning.index')
+                ->with('error', 'Anda belum terdaftar pada kamar aktif. Harap hubungi pengurus atau pemilik kos sebelum membuat permintaan pembersihan kamar.');
+        }
+
         return view('penghuni.cleaning.create');
     }
 
-    
+    public function store(Request $request)
+    {
+        $tenant = Auth::user()->tenant;
 
-public function store(Request $request)
-{
-    $validated = $request->validate([
-        'requested_date' => ['required', 'date', 'after_or_equal:today'],
-        'requested_time' => ['required', 'date_format:H:i'],
-        'presence_status' => ['required', 'in:occupied,vacant'],
-        'note' => ['nullable', 'string'],
-    ], [
-        'requested_date.after_or_equal' => 'Tanggal pengajuan tidak boleh sebelum hari ini.',
-        'requested_date.required' => 'Tanggal pembersihan wajib diisi.',
-        'requested_time.required' => 'Waktu pembersihan wajib diisi.',
-        'presence_status.required' => 'Status keberadaan wajib dipilih.',
-    ]);
+        // Validasi kamar dilakukan sebelum menyimpan pengajuan
+        if (!$tenant || empty($tenant->room_id)) {
+            return redirect()
+                ->route('penghuni.cleaning.index')
+                ->with('error', 'Anda belum terdaftar pada kamar aktif. Harap hubungi pengurus atau pemilik kos sebelum membuat permintaan pembersihan kamar.');
+        }
 
-    $tenant = Auth::user()->tenant;
+        $validated = $request->validate([
+            'requested_date' => ['required', 'date', 'after_or_equal:today'],
+            'requested_time' => ['required', 'date_format:H:i'],
+            'presence_status' => ['required', 'in:occupied,vacant'],
+            'note' => ['nullable', 'string'],
+        ], [
+            'requested_date.after_or_equal' => 'Tanggal pengajuan tidak boleh sebelum hari ini.',
+            'requested_date.required' => 'Tanggal pembersihan wajib diisi.',
+            'requested_time.required' => 'Waktu pembersihan wajib diisi.',
+            'presence_status.required' => 'Status keberadaan wajib dipilih.',
+        ]);
 
-    if (!$tenant) {
-        return back()->withInput()
-            ->with('error', 'Akun penghuni belum terhubung dengan data tenant.');
+        // Periksa apakah jadwal sudah digunakan penghuni lain
+        $scheduleExists = CleaningSchedule::whereDate(
+            'requested_date',
+            $validated['requested_date']
+        )
+            ->whereTime('requested_time', $validated['requested_time'])
+            ->whereIn('status', [
+                CleaningScheduleStatus::PENDING->value,
+                CleaningScheduleStatus::APPROVED->value,
+                CleaningScheduleStatus::RESCHEDULED->value,
+            ])
+            ->exists();
+
+        if ($scheduleExists) {
+            return back()->withInput()
+                ->with('error', 'Pengajuan gagal! Jadwal pada tanggal dan jam tersebut sudah diambil oleh penghuni lain. Silakan pilih jam yang berbeda.');
+        }
+
+        CleaningSchedule::create([
+            'tenant_id' => $tenant->id,
+            'room_id' => $tenant->room_id,
+            'requested_date' => $validated['requested_date'],
+            'requested_time' => $validated['requested_time'],
+            'presence_status' => $validated['presence_status'],
+            'status' => CleaningScheduleStatus::PENDING->value,
+            'note' => $validated['note'] ?? null,
+        ]);
+
+        return redirect()
+            ->route('penghuni.cleaning.index')
+            ->with('success', 'Pengajuan pembersihan kamar berhasil dikirim.');
     }
-
-    // Periksa apakah jadwal sudah digunakan penghuni lain
-    $scheduleExists = CleaningSchedule::whereDate(
-        'requested_date',
-        $validated['requested_date']
-    )
-        ->whereTime('requested_time', $validated['requested_time'])
-        ->whereIn('status', [
-            CleaningScheduleStatus::PENDING->value,
-            CleaningScheduleStatus::APPROVED->value,
-            CleaningScheduleStatus::RESCHEDULED->value,
-        ])
-        ->exists();
-
-    if ($scheduleExists) {
-        return back()->withInput()
-            ->with('error', 'Pengajuan gagal! Jadwal pada tanggal dan jam tersebut sudah diambil oleh penghuni lain. Silakan pilih jam yang berbeda.');
-    }
-
-    CleaningSchedule::create([
-        'tenant_id' => $tenant->id,
-        'room_id' => $tenant->room_id,
-        'requested_date' => $validated['requested_date'],
-        'requested_time' => $validated['requested_time'],
-        'presence_status' => $validated['presence_status'],
-        'status' => CleaningScheduleStatus::PENDING->value,
-        'note' => $validated['note'] ?? null,
-    ]);
-
-    return redirect()
-        ->route('penghuni.cleaning.index')
-        ->with('success', 'Pengajuan pembersihan kamar berhasil dikirim.');
-}
-
-
 
     public function edit(CleaningSchedule $schedule)
     {
-        if ($schedule->tenant_id !== Auth::user()->tenant?->id) {
+        $tenant = Auth::user()->tenant;
+
+        if (!$tenant || empty($tenant->room_id)) {
+            return redirect()
+                ->route('penghuni.cleaning.index')
+                ->with('error', 'Anda belum terdaftar pada kamar aktif.');
+        }
+
+        if ($schedule->tenant_id !== $tenant->id) {
             abort(403);
         }
 
@@ -135,7 +152,15 @@ public function store(Request $request)
 
     public function update(Request $request, CleaningSchedule $schedule)
     {
-        if ($schedule->tenant_id !== Auth::user()->tenant?->id) {
+        $tenant = Auth::user()->tenant;
+
+        if (!$tenant || empty($tenant->room_id)) {
+            return redirect()
+                ->route('penghuni.cleaning.index')
+                ->with('error', 'Anda belum terdaftar pada kamar aktif.');
+        }
+
+        if ($schedule->tenant_id !== $tenant->id) {
             abort(403);
         }
 
@@ -164,7 +189,15 @@ public function store(Request $request)
 
     public function destroy(CleaningSchedule $schedule)
     {
-        if ($schedule->tenant_id !== Auth::user()->tenant?->id) {
+        $tenant = Auth::user()->tenant;
+
+        if (!$tenant || empty($tenant->room_id)) {
+            return redirect()
+                ->route('penghuni.cleaning.index')
+                ->with('error', 'Anda belum terdaftar pada kamar aktif.');
+        }
+
+        if ($schedule->tenant_id !== $tenant->id) {
             abort(403);
         }
 
