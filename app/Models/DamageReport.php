@@ -39,4 +39,19 @@ class DamageReport extends Model
     {
         return $this->belongsTo(User::class, 'handled_by');
     }
+
+    /**
+     * Mendapatkan label lokasi kerusakan.
+     * Jika kamar sendiri: 'Kamar {nomor}'
+     * Jika ruangan bersama: teks spesifik yang diinputkan penghuni (shared_area_detail)
+     */
+    public function getLocationLabelAttribute(): string
+    {
+        if ($this->location_type === 'own_room') {
+            $roomNum = $this->room?->room_number ?? $this->room?->number ?? '-';
+            return "Kamar {$roomNum}";
+        }
+
+        return $this->shared_area_detail ?: 'Ruang Umum';
+    }
 }

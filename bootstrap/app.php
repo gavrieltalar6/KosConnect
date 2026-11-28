@@ -20,6 +20,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->validateCsrfTokens(except: [
             'midtrans/notification',
         ]);
+                // ➕ Tambahkan pengecualian CSRF untuk webhook Midtrans & Telegram
+        $middleware->validateCsrfTokens(except: [
+            'midtrans/notification',
+            'telegram/webhook',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

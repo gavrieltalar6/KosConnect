@@ -92,7 +92,7 @@
                 <thead>
                     <tr class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider bg-gray-50/75">
                         <th class="px-4 py-3">Penghuni</th>
-                        <th class="px-4 py-3">Kamar</th>
+                        <th class="px-4 py-3">Lokasi</th>
                         <th class="px-4 py-3">Kendala</th>
                         <th class="px-4 py-3">Status</th>
                         <th class="px-4 py-3 text-right">Tanggal</th>
@@ -105,9 +105,15 @@
                             {{ $report->tenant->full_name ?? '-' }}
                         </td>
                         <td class="px-4 py-3">
-                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-indigo-50 text-indigo-700">
-                                Kamar {{ $report->room->room_number ?? $report->room->number ?? '-' }}
-                            </span>
+                            @if($report->location_type === 'own_room')
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-indigo-50 text-indigo-700">
+                                    Kamar {{ $report->room->room_number ?? $report->room->number ?? '-' }}
+                                </span>
+                            @else
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-yellow-50 text-yellow-700">
+                                    Ruang Umum
+                                </span>
+                            @endif
                         </td>
                         <td class="px-4 py-3">
                             <div class="font-medium text-gray-900">{{ $report->title }}</div>

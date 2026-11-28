@@ -52,7 +52,7 @@
                            value="{{ $search }}" 
                            placeholder="Cari penghuni, kamar, judul..." 
                            class="w-64 pl-9 pr-3 py-1.5 text-xs bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
-                    <svg class="w-4 h-4 text-gray-400 absolute left-2.5 top-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-4 h-4 text-gray-400 absolute left-2.5 top-2" width="16" height="16" style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                     </svg>
                 </div>
@@ -78,7 +78,7 @@
                             Penghuni
                         </th>
                         <th scope="col" class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                            Kamar
+                            Lokasi
                         </th>
                         <th scope="col" class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                             Laporan Kerusakan
@@ -109,14 +109,16 @@
                             @endif
                         </td>
 
-                        <!-- Kamar -->
+                        <!-- Lokasi -->
                         <td class="px-6 py-4 whitespace-nowrap">
-                            @if($report->room)
+                            @if($report->location_type === 'own_room')
                                 <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100">
                                     Kamar {{ $report->room->room_number ?? $report->room->number }}
                                 </span>
                             @else
-                                <span class="text-xs text-gray-400 italic">Tanpa kamar</span>
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-yellow-50 text-yellow-700 border border-yellow-200">
+                                    Ruang Umum
+                                </span>
                             @endif
                         </td>
 
@@ -175,7 +177,8 @@
                                             'title' => $report->title,
                                             'tenant' => $report->tenant->full_name ?? '-',
                                             'phone' => $report->tenant?->phone ?? '-',
-                                            'room' => $report->room ? 'Kamar ' . ($report->room->room_number ?? $report->room->number) : '-',
+                                            'location' => $report->location_label,
+                                            'room' => $report->location_label,
                                             'status' => $report->status instanceof \App\Enums\DamageReportStatus ? $report->status->getLabel() : ucfirst($statusVal ?? ''),
                                             'status_val' => $statusVal,
                                             'created_at' => $report->created_at ? $report->created_at->format('d M Y, H:i') : '-',
@@ -301,8 +304,8 @@
                         <p id="modalPhone" class="text-xs text-gray-500"></p>
                     </div>
                     <div>
-                        <span class="text-[11px] font-semibold text-gray-400 uppercase">Kamar</span>
-                        <p id="modalRoom" class="text-sm font-semibold text-indigo-600 mt-0.5"></p>
+                        <span class="text-[11px] font-semibold text-gray-400 uppercase">Lokasi</span>
+                        <p id="modalLocation" class="text-sm font-semibold text-indigo-600 mt-0.5"></p>
                     </div>
                     <div>
                         <span class="text-[11px] font-semibold text-gray-400 uppercase">Waktu Lapor</span>
@@ -335,7 +338,7 @@ function showReportDetail(data) {
     document.getElementById('modalTitle').textContent = data.title;
     document.getElementById('modalTenant').textContent = data.tenant;
     document.getElementById('modalPhone').textContent = data.phone !== '-' ? data.phone : '';
-    document.getElementById('modalRoom').textContent = data.room;
+    document.getElementById('modalLocation').textContent = data.location ?? data.room;
     document.getElementById('modalCreatedAt').textContent = data.created_at;
     
     const statusElem = document.getElementById('modalStatus');

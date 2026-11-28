@@ -16,7 +16,7 @@ class CleaningReviewController extends Controller
 
 public function index()
 {
-    $schedules = CleaningSchedule::with(['tenant', 'room'])
+    $schedules = CleaningSchedule::with(['tenant.room', 'room'])
         ->whereIn('status', [
             CleaningScheduleStatus::PENDING->value,
             CleaningScheduleStatus::APPROVED->value,
@@ -57,7 +57,7 @@ public function index()
 
 public function report()
 {
-    $schedules = CleaningSchedule::with(['tenant', 'room'])
+    $schedules = CleaningSchedule::with(['tenant.room', 'room'])
         ->whereIn('status', [
             CleaningScheduleStatus::DONE->value,
             CleaningScheduleStatus::REJECTED->value,

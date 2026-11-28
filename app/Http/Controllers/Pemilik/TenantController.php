@@ -29,7 +29,7 @@ class TenantController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $rules = [
             'email' => ['required', 'email', 'unique:users,email'],
             'password' => ['required', 'min:6'],
             'full_name' => ['required', 'string', 'max:255'],
@@ -39,6 +39,16 @@ class TenantController extends Controller
             'room_id' => ['nullable', 'exists:rooms,id'],
             'check_in_date' => ['required', 'date'],
             'due_day' => ['required', 'integer', 'between:1,28'],
+        ];
+
+        if ($request->filled('password_confirmation')) {
+            $rules['password'][] = 'confirmed';
+        }
+
+        $validated = $request->validate($rules, [
+            'password.confirmed' => 'Konfirmasi password tidak cocok.',
+            'password.min' => 'Password minimal 6 karakter.',
+            'email.unique' => 'Email ini sudah terdaftar sebagai pengguna.',
         ]);
 
         if ($this->roomIsTaken($validated['room_id'] ?? null)) {
@@ -113,6 +123,34 @@ class TenantController extends Controller
         });
 
         return redirect()->route('pemilik.tenants.index')->with('success', 'Data penghuni berhasil diperbarui.');
+    }
+
+    public function deactivate(Tenant $tenant)
+    {
+        DB::transaction(function () use ($tenant) {
+            $tenant->update(['status' => TenantStatus::INACTIVE]);
+            $tenant->user?->update(['is_active' => false]);
+            $tenant->room?->syncOccupancyStatus();
+        });
+
+        return redirect()->route('pemilik.tenants.index')
+            ->with('success', "Akun penghuni {$tenant->full_name} berhasil dinonaktifkan.");
+    }
+
+    public function activate(Tenant $tenant)
+    {
+        if ($this->roomIsTaken($tenant->room_id, $tenant->id)) {
+            return back()->with('error', 'Kamar penghuni ini sudah ditempati penghuni aktif lain. Silakan ubah kamar melalui Edit Detail terlebih dahulu.');
+        }
+
+        DB::transaction(function () use ($tenant) {
+            $tenant->update(['status' => TenantStatus::ACTIVE]);
+            $tenant->user?->update(['is_active' => true]);
+            $tenant->room?->syncOccupancyStatus();
+        });
+
+        return redirect()->route('pemilik.tenants.index')
+            ->with('success', "Akun penghuni {$tenant->full_name} berhasil diaktifkan.");
     }
 
     public function destroy(Tenant $tenant)
