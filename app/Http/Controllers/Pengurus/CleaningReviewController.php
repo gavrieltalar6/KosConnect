@@ -96,163 +96,114 @@ public function report()
 }
 
 
-    public function update(Request $request, CleaningSchedule $schedule)
-    {
-        $validated = $request->validate([
-            'status' => [
-                'required',
-                'in:approved,rejected,rescheduled,done'
-            ],
-            'rescheduled_date' => [
-                'required_if:status,rescheduled',
-                'nullable',
-                'date'
-            ],
-            'rescheduled_time' => [
-                'required_if:status,rescheduled',
-                'nullable',
-                'date_format:H:i'
-            ],
-            'note' => ['nullable', 'string'],
-        ]);
+    
+public function update(Request $request, CleaningSchedule $schedule)
+{
+    $validated = $request->validate([
+        'status' => ['required', 'in:approved,rejected,rescheduled,done'],
+        'rescheduled_date' => [
+            'required_if:status,rescheduled',
+            'nullable',
+            'date',
+            'after:today'
+        ],
+        'rescheduled_time' => [
+            'required_if:status,rescheduled',
+            'nullable',
+            'date_format:H:i'
+        ],
+        'rejection_reason' => [
+            'required_if:status,rejected',
+            'nullable',
+            'string',
+            'max:1000'
+        ],
+        'note' => ['nullable', 'string'],
+    ], [
+        'rejection_reason.required_if' => 'Alasan penolakan wajib diisi.',
+        'rejection_reason.max' => 'Alasan penolakan maksimal 1000 karakter.',
+    ]);
 
-        // PROSES PERSETUJUAN
-        if ($validated['status'] === 'approved') {
+    try {
+        DB::transaction(function () use ($validated, $schedule) {
 
-            $result = DB::transaction(function () use ($schedule) {
-
-                // Kunci permintaan pada tanggal dan jam yang sama.
-                $slotRequests = CleaningSchedule::where(function ($query) use ($schedule) {
-
-                    $query->where(function ($q) use ($schedule) {
-                        $q->whereDate(
-                            'requested_date',
-                            $schedule->requested_date->format('Y-m-d')
-                        )->whereTime(
-                            'requested_time',
-                            $schedule->requested_time
-                        );
-                    });
-
-                    $query->orWhere(function ($q) use ($schedule) {
-                        $q->whereDate(
-                            'rescheduled_date',
-                            $schedule->requested_date->format('Y-m-d')
-                        )->whereTime(
-                            'rescheduled_time',
-                            $schedule->requested_time
-                        );
-                    });
-
-                })
+            DB::table('users')
                 ->orderBy('id')
                 ->lockForUpdate()
-                ->get();
+                ->first();
 
-                $current = $slotRequests->firstWhere('id', $schedule->id);
+            $schedule->refresh();
 
-                if (
-                    !$current ||
-                    $current->status !== CleaningScheduleStatus::PENDING
-                ) {
-                    return 'processed';
-                }
-
-                // Periksa apakah jadwal sudah dimiliki penghuni lain.
-                $slotAlreadyTaken = $slotRequests->contains(
-                    function ($item) use ($current) {
-
-                        if ($item->id === $current->id) {
-                            return false;
-                        }
-
-                        if ($item->status === CleaningScheduleStatus::APPROVED) {
-                            return
-                                $item->requested_date->format('Y-m-d')
-                                === $current->requested_date->format('Y-m-d')
-                                &&
-                                substr((string) $item->requested_time, 0, 5)
-                                === substr((string) $current->requested_time, 0, 5);
-                        }
-
-                        if ($item->status === CleaningScheduleStatus::RESCHEDULED) {
-                            return
-                                $item->rescheduled_date?->format('Y-m-d')
-                                === $current->requested_date->format('Y-m-d')
-                                &&
-                                substr((string) $item->rescheduled_time, 0, 5)
-                                === substr((string) $current->requested_time, 0, 5);
-                        }
-
-                        return false;
-                    }
+            if ($schedule->status !== CleaningScheduleStatus::PENDING) {
+                throw new \RuntimeException(
+                    'Permintaan ini sudah diproses oleh pengurus lain.'
                 );
-
-                if ($slotAlreadyTaken) {
-                    return 'taken';
-                }
-
-                // Setujui permintaan pertama.
-                $current->update([
-                    'status' => CleaningScheduleStatus::APPROVED,
-                    'reviewed_by' => Auth::id(),
-                ]);
-
-                return 'approved';
-
-            }, 3);
-
-            if ($result === 'taken') {
-                return redirect()
-                    ->route('pengurus.cleaning.index')
-                    ->with(
-                        'error',
-                        'Jadwal tersebut sudah disetujui untuk penghuni lain. Permintaan ini tidak dapat disetujui.'
-                    );
             }
 
-            if ($result === 'processed') {
-                return redirect()
-                    ->route('pengurus.cleaning.index')
-                    ->with(
-                        'error',
-                        'Permintaan ini sudah diproses oleh pengurus lain.'
+            $targetDate = $validated['status'] === 'rescheduled'
+                ? $validated['rescheduled_date']
+                : $schedule->requested_date->format('Y-m-d');
+
+            $targetTime = $validated['status'] === 'rescheduled'
+                ? $validated['rescheduled_time']
+                : substr($schedule->requested_time, 0, 5);
+
+            if (in_array($validated['status'], ['approved', 'rescheduled'])) {
+
+                $conflict = CleaningSchedule::where('id', '!=', $schedule->id)
+                    ->whereIn('status', ['approved', 'rescheduled'])
+                    ->where(function ($query) use ($targetDate, $targetTime) {
+
+                        $query->where(function ($q) use ($targetDate, $targetTime) {
+                            $q->whereDate('requested_date', $targetDate)
+                                ->whereTime('requested_time', $targetTime);
+                        });
+
+                        $query->orWhere(function ($q) use ($targetDate, $targetTime) {
+                            $q->whereDate('rescheduled_date', $targetDate)
+                                ->whereTime('rescheduled_time', $targetTime);
+                        });
+                    })
+                    ->exists();
+
+                if ($conflict) {
+                    throw new \RuntimeException(
+                        'Jadwal tersebut sudah diterima untuk penghuni lain. Silakan pilih waktu lain.'
                     );
+                }
             }
 
-            return redirect()
-                ->route('pengurus.cleaning.index')
-                ->with(
-                    'success',
-                    'Permintaan pembersihan berhasil disetujui.'
-                );
-        }
+            $schedule->update([
+                'status' => $validated['status'],
 
-        // PROSES PENOLAKAN ATAU PERUBAHAN JADWAL
-        if ($schedule->status !== CleaningScheduleStatus::PENDING) {
-            return redirect()
-                ->route('pengurus.cleaning.index')
-                ->with(
-                    'error',
-                    'Permintaan ini sudah diproses dan tidak dapat diubah lagi.'
-                );
-        }
+                'rescheduled_date' => $validated['status'] === 'rescheduled'
+                    ? $validated['rescheduled_date']
+                    : null,
 
-        $schedule->update([
-            'status' => $validated['status'],
-            'rescheduled_date' => $validated['rescheduled_date'] ?? null,
-            'rescheduled_time' => $validated['rescheduled_time'] ?? null,
-            'note' => $validated['note'] ?? $schedule->note,
-            'reviewed_by' => Auth::id(),
-        ]);
+                'rescheduled_time' => $validated['status'] === 'rescheduled'
+                    ? $validated['rescheduled_time']
+                    : null,
 
+                'rejection_reason' => $validated['status'] === 'rejected'
+                    ? $validated['rejection_reason']
+                    : null,
+
+                'note' => $validated['note'] ?? $schedule->note,
+                'reviewed_by' => Auth::id(),
+            ]);
+        });
+
+    } catch (\RuntimeException $e) {
         return redirect()
             ->route('pengurus.cleaning.index')
-            ->with(
-                'success',
-                'Permintaan pembersihan berhasil ditolak.'
-            );
+            ->with('error', $e->getMessage());
     }
+
+    return redirect()
+        ->route('pengurus.cleaning.index')
+        ->with('success', 'Jadwal kebersihan berhasil diverifikasi.');
+}
+
 
     public function markAsDone(CleaningSchedule $schedule)
     {

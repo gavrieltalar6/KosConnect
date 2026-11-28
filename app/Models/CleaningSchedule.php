@@ -11,16 +11,17 @@ class CleaningSchedule extends Model
     protected $table = 'cleaning_schedules';
 
     protected $fillable = [
-        'tenant_id',
-        'room_id',
-        'requested_date',
-        'requested_time',
-        'presence_status',
-        'status',
-        'reviewed_by',
-        'rescheduled_date',
-        'rescheduled_time',
-        'note',
+    'tenant_id',
+    'room_id',
+    'requested_date',
+    'requested_time',
+    'presence_status',
+    'status',
+    'reviewed_by',
+    'rescheduled_date',
+    'rescheduled_time',
+    'note',
+    'rejection_reason',
     ];
 
     protected $casts = [
