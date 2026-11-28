@@ -31,13 +31,6 @@
         </h3>
     </div>
 
-    {{-- Dijadwalkan Ulang --}}
-    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-        <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Dijadwalkan Ulang</p>
-        <h3 class="text-2xl font-bold text-blue-600 mt-2">
-            {{ $stats['rescheduled'] }}
-        </h3>
-    </div>
 </div>
 
 {{-- TABEL LAPORAN KEBERSIHAN --}}

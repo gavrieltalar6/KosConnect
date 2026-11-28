@@ -42,7 +42,7 @@
     /* STATISTIK */
     .cleaning-stats {
         display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 10px;
         margin-bottom: 15px;
     }
@@ -79,10 +79,6 @@
 
     .stat-approved .cleaning-stat-number {
         color: #16a34a;
-    }
-
-    .stat-changed .cleaning-stat-number {
-        color: #2563eb;
     }
 
     /* SISTEM ANTREAN */
@@ -236,6 +232,111 @@
         text-decoration: none;
     }
 
+    /* POPUP PENOLAKAN */
+    .reject-modal {
+        width: calc(100% - 32px);
+        max-width: 450px;
+        padding: 0;
+        border: none;
+        border-radius: 18px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+    }
+
+    .reject-modal::backdrop {
+        background: rgba(15, 23, 42, 0.55);
+        backdrop-filter: blur(2px);
+    }
+
+    .reject-modal-content {
+        padding: 24px;
+    }
+
+    .reject-modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+
+    .reject-modal-header h3 {
+        margin: 0;
+        font-size: 19px;
+        font-weight: 700;
+        color: #111827;
+    }
+
+    .reject-modal-close {
+        border: none;
+        background: transparent;
+        color: #94a3b8;
+        font-size: 26px;
+        cursor: pointer;
+    }
+
+    .reject-modal-description {
+        margin: 0 0 18px;
+        color: #64748b;
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+    .reject-modal label {
+        display: block;
+        margin-bottom: 8px;
+        color: #374151;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .reject-modal textarea {
+        display: block;
+        width: 100%;
+        min-height: 115px;
+        padding: 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 11px;
+        outline: none;
+        resize: vertical;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 14px;
+    }
+
+    .reject-modal textarea:focus {
+        border-color: #ef4444;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+    }
+
+    .reject-modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    .reject-modal-button {
+        min-height: 40px;
+        padding: 0 16px;
+        border: none;
+        border-radius: 9px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .reject-modal-cancel {
+        background: #f1f5f9;
+        color: #475569;
+    }
+
+    .reject-modal-submit {
+        background: #e51f26;
+        color: #fff;
+    }
+
+    .reject-modal-submit:hover {
+        background: #c91c22;
+    }
+
     /* RESPONSIVE */
     @media (max-width: 640px) {
         .cleaning-page {
@@ -309,13 +410,6 @@
             <div class="cleaning-stat-label">Disetujui</div>
             <div class="cleaning-stat-number">
                 {{ $stats['approved'] }}
-            </div>
-        </div>
-
-        <div class="cleaning-stat stat-changed">
-            <div class="cleaning-stat-label">Diubah</div>
-            <div class="cleaning-stat-number">
-                {{ $stats['rescheduled'] }}
             </div>
         </div>
 
@@ -405,6 +499,7 @@
 
                 <div class="cleaning-actions">
 
+                    <!-- TOMBOL SETUJUI -->
                     <form
                         action="{{ route('pengurus.cleaning.update', $schedule) }}"
                         method="POST"
@@ -426,28 +521,94 @@
                         </button>
                     </form>
 
-                    <form
-                        action="{{ route('pengurus.cleaning.update', $schedule) }}"
-                        method="POST"
+                    <!-- TOMBOL BUKA POPUP PENOLAKAN -->
+                    <button
+                        type="button"
+                        onclick="document.getElementById('rejectModal-{{ $schedule->id }}').showModal()"
+                        class="cleaning-action cleaning-action-reject"
                     >
-                        @csrf
-                        @method('PUT')
-
-                        <input
-                            type="hidden"
-                            name="status"
-                            value="rejected"
-                        >
-
-                        <button
-                            type="submit"
-                            class="cleaning-action cleaning-action-reject"
-                        >
-                            Tolak
-                        </button>
-                    </form>
+                        Tolak
+                    </button>
 
                 </div>
+
+                <!-- POPUP ALASAN PENOLAKAN -->
+                <dialog
+                    id="rejectModal-{{ $schedule->id }}"
+                    class="reject-modal"
+                >
+
+                    <div class="reject-modal-content">
+
+                        <div class="reject-modal-header">
+
+                            <h3>Alasan Penolakan</h3>
+
+                            <button
+                                type="button"
+                                class="reject-modal-close"
+                                onclick="document.getElementById('rejectModal-{{ $schedule->id }}').close()"
+                            >
+                                &times;
+                            </button>
+
+                        </div>
+
+                        <p class="reject-modal-description">
+                            Silakan berikan alasan mengapa permintaan
+                            pembersihan kamar ini ditolak. Alasan ini
+                            nantinya dapat dilihat oleh penghuni.
+                        </p>
+
+                        <form
+                            action="{{ route('pengurus.cleaning.update', $schedule) }}"
+                            method="POST"
+                        >
+                            @csrf
+                            @method('PUT')
+
+                            <input
+                                type="hidden"
+                                name="status"
+                                value="rejected"
+                            >
+
+                            <label for="rejection_reason_{{ $schedule->id }}">
+                                Alasan Penolakan
+                            </label>
+
+                            <textarea
+                                id="rejection_reason_{{ $schedule->id }}"
+                                name="rejection_reason"
+                                placeholder="Tuliskan alasan penolakan di sini..."
+                                maxlength="1000"
+                                required
+                            ></textarea>
+
+                            <div class="reject-modal-actions">
+
+                                <button
+                                    type="button"
+                                    class="reject-modal-button reject-modal-cancel"
+                                    onclick="document.getElementById('rejectModal-{{ $schedule->id }}').close()"
+                                >
+                                    Batal
+                                </button>
+
+                                <button
+                                    type="submit"
+                                    class="reject-modal-button reject-modal-submit"
+                                >
+                                    Kirim Penolakan
+                                </button>
+
+                            </div>
+
+                        </form>
+
+                    </div>
+
+                </dialog>
 
             @elseif($statusValue === 'approved')
 
